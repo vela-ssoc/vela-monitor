@@ -1,0 +1,42 @@
+# 编译输出文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试二进制文件
+*.test
+
+# Go工作区文件
+go.work
+
+# 依赖目录
+vendor/
+bin/
+pkg/
+
+# IDE配置文件
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 环境变量文件
+.env
+.env.local
+
+# 日志文件
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*~
+~*
+
+# 开发工具生成文件
+debug
