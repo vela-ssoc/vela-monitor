@@ -1,0 +1,101 @@
+# vela-monitor
+提供统一的性能\自定义指标\系统资源等的监控组件，用于全方位监控各种资源的状态
+
+## Lua接口文档
+
+### 基本使用
+```lua
+local m = luakit.monitor{
+    name = "服务名称"
+}
+```
+
+## 采集器
+支持以下内置采集器：
+- CPU采集器
+- 内存采集器
+- 磁盘采集器
+- 网络采集器
+- 普罗米修斯原生GO指标采集器
+- 普罗米修斯原生自身进程指标采集器
+
+示例：
+```lua
+local cpu = luakit.monitor.collectors.cpu{
+    interval = 10  -- 采集间隔(秒)
+}
+m.collectors(cpu)  -- 添加到监控服务
+```
+
+
+## 指标
+
+### 1. 原子计数器(atomic counter)
+- **用途**：记录事件发生的总次数
+- **特性**：
+  - 线程安全，支持并发递增
+  - 只能增加，不能减少
+- **示例**：
+```lua
+local cnt = luakit.monitor.metrics.counter("req_cnt", "请求计数器")
+cnt.incr()  -- 计数器+1
+cnt.add(5)   -- 计数器+5
+```
+
+### 2. 简单指标(simple gauge)
+- **用途**：记录瞬时值
+- **特性**：
+  - 可设置任意数值
+  - 适合记录内存使用率、CPU负载等指标
+- **示例**：
+```lua
+local mem = luakit.monitor.metrics.simple_gauge("mem_usage", "内存使用百分比")
+mem.set(75.3)  -- 设置当前内存使用率为75.3%
+```
+
+### 3. 速率计算器(rate calculator)
+- **用途**：计算指标的变化速率
+- **特性**：
+  - 基于滑动窗口计算平均值
+  - 适合计算QPS、网络吞吐等指标
+- **示例**：
+```lua
+local req_cnt = luakit.monitor.metrics.counter("req_total", "总请求数")
+local qps = req_cnt.gen_rate_metric("req_rate", "每秒请求数", 5)  -- 5秒窗口
+
+-- 添加到监控服务
+m.metrics(req_cnt, qps)
+```
+
+## 适配器
+
+
+### Prometheus集成
+支持Pull和Push两种模式：
+
+1. Pull模式：
+```lua
+m.PrometheusPull{
+    prom_pull_addr = "0.0.0.0:9100",
+    prom_pull_uri = "/metrics"
+}
+```
+
+2. Push模式：
+```lua
+m.PrometheusPush{
+    prom_push_gateway = "http://127.0.0.1:9091",
+    prom_push_interval = 5,
+    prom_push_job_name = "job_name"
+}
+```
+### 内部数据采集/推送服务  
+TODO..
+
+## 启动服务
+```lua
+m.start()
+```
+
+## 完整示例
+参考`tests/monitor_example.lua`和`tests/monitor.lua`中的示例代码
