@@ -20,7 +20,8 @@ type PrometheusAdapter struct {
 	Collectors map[string]*collector.Collector
 	Metrics    map[string]*metrics.Metric
 	Cfg        *Prometheusconfig
-	httpserv   *fasthttp.Server
+	httpServ   *fasthttp.Server // 外部复用http服务(*可选)
+	httpRoute  *router.Router   // 外部复用http服务路由(*可选)
 	// 组合标签指标数据类型
 	// gauges     map[string]*prometheus.GaugeVec
 
@@ -135,30 +136,32 @@ func (a *PrometheusAdapter) StartPullServeFastHttp() error {
 	if a.Cfg.PormPullAddr == "" || a.Cfg.PormPullUri == "" {
 		return fmt.Errorf("prometheus pull address or pull uri not configured")
 	}
-	prom_pull_router := router.New()
-	prom_pull_Handler := fasthttpadaptor.NewFastHTTPHandler(promhttp.HandlerFor(a.registry, promhttp.HandlerOpts{}))
-	prom_pull_router.GET(a.Cfg.PormPullUri, prom_pull_Handler)
 
-	if a.httpserv == nil {
-		a.httpserv = &fasthttp.Server{
-			Handler: prom_pull_router.Handler,
+	/*
+		如果要兼容lua中的 limit_http_srv 模块,需要把http 改造 fasthttp
+		go-prometheus 只提供了 http 版本的 http handler
+	*/
+
+	// 复用路由
+	if a.httpRoute == nil {
+		a.httpRoute = router.New()
+	}
+	prom_pull_Handler := fasthttpadaptor.NewFastHTTPHandler(promhttp.HandlerFor(a.registry, promhttp.HandlerOpts{}))
+	a.httpRoute.GET(a.Cfg.PormPullUri, prom_pull_Handler)
+
+	// 复用http服务
+	if a.httpServ == nil {
+		a.httpServ = &fasthttp.Server{
+			Handler: a.httpRoute.Handler,
 		}
 		go func() {
 			fmt.Println("Starting fasthttp server on:", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
-			if err := a.httpserv.ListenAndServe(a.Cfg.PormPullAddr); err != nil {
+			if err := a.httpServ.ListenAndServe(a.Cfg.PormPullAddr); err != nil {
 				fmt.Printf("Error starting fasthttp server: %v\n", err)
 			}
 		}()
 	} else {
-		// 动态添加路由到现有server
-		handler := a.httpserv.Handler
-		a.httpserv.Handler = func(ctx *fasthttp.RequestCtx) {
-			if string(ctx.Path()) == a.Cfg.PormPullUri {
-				prom_pull_router.Handler(ctx)
-			} else {
-				handler(ctx)
-			}
-		}
+		a.httpServ.Handler = a.httpRoute.Handler
 	}
 
 	return nil
@@ -180,7 +183,7 @@ func (a *PrometheusAdapter) StartPullServeHttp() error {
 			fmt.Printf("Error starting server: %v\n", err)
 		}
 	}()
-
+	// 优雅退出 防止服务被kill后 端口还未释放
 	//sigCh := make(chan os.Signal, 1)
 	//signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	//<-sigCh

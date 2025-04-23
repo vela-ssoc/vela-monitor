@@ -9,9 +9,9 @@ import (
 
 // 磁盘指标定义
 var (
-	diskUsage = metrics.NewSimpleGauge("disk_usage_percent", "Disk Usage Percentage", getDiskUsage)
-	diskFree  = metrics.NewSimpleGauge("disk_free_GB", "Disk Free Space (GB)", getDiskFree)
-	diskTotal = metrics.NewSimpleGauge("disk_total_GB", "Disk Total Space (GB)", getDiskTotal)
+	diskUsage = metrics.NewSimpleGauge("disk_usage_percent", "磁盘空间使用率(windows为系统盘,linux为根目录)", getDiskUsage)
+	diskFree  = metrics.NewSimpleGauge("disk_free_GB", "磁盘剩余空间大小GB(windows为系统盘,linux为根目录)", getDiskFree)
+	diskTotal = metrics.NewSimpleGauge("disk_total_GB", "磁盘总空间大小GB(windows为系统盘,linux为根目录)", getDiskTotal)
 )
 
 // 默认采集间隔(秒)

@@ -117,8 +117,9 @@ func getAllBusyTotalCpu(t cpu.TimesStat) (float64, float64) {
 	return (busy + t.Idle) / float64(cpuCoreNum), (busy) / float64(cpuCoreNum)
 }
 
+// 获取所有CPU核心的使用时间
+// 8核心CPU 单核心的使用1S 则返回1秒
 func getCpuUseTimeTotalCpu() float64 {
-	// 获取所有CPU核心的使用时间
 	times, err := cpu.Times(false) // false表示获取所有CPU的使用时间
 	if err != nil {
 		return 0
@@ -127,7 +128,7 @@ func getCpuUseTimeTotalCpu() float64 {
 		return 0
 	}
 	// return times[0].Total()
-	_, busy := getAllBusy(times[0])
+	_, busy := getAllBusyTotalCpu(times[0])
 	return busy
 }
 

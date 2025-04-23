@@ -1,14 +1,20 @@
 # vela-monitor
 提供统一的性能\自定义指标\系统资源等的监控组件，用于全方位监控各种资源的状态
 
-## Lua接口文档
-
-### 基本使用
+## 基本使用
 ```lua
+local cnt =luakit.monitor.metrics.counter("req_cnt", "请求计数器")
 local m = luakit.monitor{
     name = "服务名称"
 }
+m.collectors(luakit.monitor.collectors.cpu{interval = 10,})  -- 添加采集器
+m.metrics(cnt)  -- 添加指标
+m.PrometheusPull{prom_pull_addr = "0.0.0.0:9100",prom_pull_uri = "/metrics"}  -- 添加适配器
+m.start()  -- 启动服务
+cnt.incr()  -- 计数器+1
 ```
+## 测试
+在`tests/monitor.lua`中可以找到测试用例，运行`tests/service_test.go`中的`TestService`即可启动测试服务。
 
 ## 采集器
 支持以下内置采集器：
@@ -98,4 +104,4 @@ m.start()
 ```
 
 ## 完整示例
-参考`tests/monitor_example.lua`和`tests/monitor.lua`中的示例代码
+参考`tests/monitor.lua`中的示例代码

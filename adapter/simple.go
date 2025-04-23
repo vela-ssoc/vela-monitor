@@ -6,6 +6,9 @@ import (
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
+/*
+未完成
+*/
 type SimpleAdapter struct {
 	Collectors map[string]*collector.Collector
 	Metrics    map[string]*metrics.Metric

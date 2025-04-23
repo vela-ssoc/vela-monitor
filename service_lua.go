@@ -70,6 +70,7 @@ func (ms *MonitorService) StartPormPullL(L *lua.LState) int {
 					return
 				}
 			}()
+			return 0
 		}
 	}
 
