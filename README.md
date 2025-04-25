@@ -95,8 +95,31 @@ m.PrometheusPush{
     prom_push_job_name = "job_name"
 }
 ```
-### 内部数据采集/推送服务  
-TODO..
+### 内部数据采集PULL接口
+还在开发中, 目前只有最简易的实现
+
+``` lua
+ m.SimplePull("0.0.0.0:9101")
+```
+接口URI
+`/onekit/monitor/collect` 立即执行采集一次, 返回所有采集器的采集数据，格式为JSON。  
+`/onekit/monitor/view` 返回所有数据，格式为JSON。    
+**注意**: 如果采集器/指标没有配置自动定时采集, 那么里面的一些指标不会更新  
+
+### 内部数据采集PUSH服务
+TODO
+
+
+## 告警器
+### 简单告警器
+**还在开发中, 部分功能还未完成**  
+只支持直接指标的告警, 暂时不支持复杂运算
+使用样例:
+```lua
+local alarm=luakit.monitor.alarm.simple("简单告警器")
+alarm.addSimple(cpu,"cpu_usage > 1", "cpu使用率超过1%")
+```
+
 
 ## 启动服务
 ```lua
