@@ -157,6 +157,14 @@ func (ms *MonitorService) NewMetricsL(L *lua.LState) int {
 	return 0
 }
 
+func (ms *MonitorService) StertSimplePullL(L *lua.LState) int {
+	addr := L.CheckString(1)
+	s := adapter.NewSimpleAdapter()
+
+	s.StartPullServeFastHttp(addr, ms.CollectAll, ms.GetAll)
+	return 1
+}
+
 func (ms *MonitorService) Index(L *lua.LState, key string) lua.LValue {
 	switch key {
 	case "start":
@@ -165,6 +173,8 @@ func (ms *MonitorService) Index(L *lua.LState, key string) lua.LValue {
 		return lua.NewFunction(ms.StartPormPullL)
 	case "PrometheusPush":
 		return lua.NewFunction(ms.StartPormPushL)
+	case "SimplePull":
+		return lua.NewFunction(ms.StertSimplePullL)
 	case "collectors":
 		return lua.NewFunction(ms.NewCollectorsL)
 	case "metrics":

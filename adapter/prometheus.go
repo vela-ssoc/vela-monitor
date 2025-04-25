@@ -163,7 +163,6 @@ func (a *PrometheusAdapter) StartPullServeFastHttp() error {
 	} else {
 		a.httpServ.Handler = a.httpRoute.Handler
 	}
-
 	return nil
 }
 

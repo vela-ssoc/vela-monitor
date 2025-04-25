@@ -6,7 +6,7 @@ local metrics = luakit.monitor.metrics
 local cpu = default_collectors.cpu {
     interval = 10,
 }
-alarm.addSimple(cpu,"test = test", "cpu使用率超过1%")
+alarm.addSimple(cpu,"cpu_usage > 1", "cpu使用率超过1%")
 --alarm.addAvg(cpu,"cpu.usage > 80", "cpu使用率超过80%", 5) -- 5次采集平均值
 
 local mem = default_collectors.mem {
@@ -51,6 +51,7 @@ m.PrometheusPull {
      prom_push_username = "",
      prom_push_password = "",
  }
+ m.SimplePull("0.0.0.0:9101")
 m.start()
 success_cnt.incr()
 success_cnt.incr()

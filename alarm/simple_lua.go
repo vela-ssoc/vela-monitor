@@ -23,21 +23,20 @@ func (sa *SimpleAlarm) addSimpleL(L *lua.LState) int {
 			cnd := cond.NewText(rule)
 			c.OnCollect(
 				func(m []*metrics.Metric) {
-					// data := map[string]interface{}{}
-					ldata := lua.Map[string, any]{}
+					data := map[string]interface{}{}
+					// ldata := lua.Map[string, any]{}
 					for _, v := range m {
-						ldata.Set((*v).Name(), (*v).Value())
-						// data[(*v).Name()] = (*v).Value()
+						// ldata.Set((*v).Name(), (*v).Value())
+						data[(*v).Name()] = (*v).Value()
 					}
-					ldata.Set("test", "test")
-					ok := cnd.Match(ldata)
+					// ldata.Set("test", "test")
+					ok := cnd.Match(data)
 					if ok {
 						sa.Alarm(AlarmInfo{
 							Title:   name,
 							Content: fmt.Sprintf("%s %s", c.Name(), rule),
 							Level:   "中危",
 						})
-						fmt.Println(sa)
 					}
 				},
 			)

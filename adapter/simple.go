@@ -1,6 +1,9 @@
 package adapter
 
 import (
+	"encoding/json"
+
+	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 	"github.com/vela-ssoc/vela-demo/monitor/collector"
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
@@ -12,7 +15,8 @@ import (
 type SimpleAdapter struct {
 	Collectors map[string]*collector.Collector
 	Metrics    map[string]*metrics.Metric
-	httpserv   *fasthttp.Server
+	httpserv   *fasthttp.Server // 内部复用http服务(*可选)
+	httpRoute  *router.Router   // 外部复用http服务路由(*可选)
 }
 
 func NewSimpleAdapter() SimpleAdapter {
@@ -43,6 +47,44 @@ func (a SimpleAdapter) Config() any {
 
 func (a SimpleAdapter) StartPullServe() {
 	// TODO simple onekit 监控Pull接口
+	return
+}
+
+func (a SimpleAdapter) StartPullServeFastHttp(addr string, collectFn func() map[string]interface{}, viewFn func() map[string]interface{}) {
+	if a.httpRoute == nil {
+		a.httpRoute = router.New()
+	}
+	if a.httpserv == nil {
+		a.httpserv = &fasthttp.Server{}
+	}
+
+	a.httpRoute.GET("/onekit/monitor/collect", func(ctx *fasthttp.RequestCtx) {
+		res := collectFn()
+		ctx.SetContentType("application/json")
+		importedJSON, err := json.Marshal(res)
+		if err != nil {
+			ctx.Error("JSON marshaling failed", fasthttp.StatusInternalServerError)
+			return
+		}
+		ctx.Write(importedJSON)
+	})
+	a.httpRoute.GET("/onekit/monitor/view", func(ctx *fasthttp.RequestCtx) {
+		res := viewFn()
+		ctx.SetContentType("application/json")
+		// 由于 json 未定义，引入 encoding/json 包进行替换
+		importedJSON, err := json.Marshal(res)
+		if err != nil {
+			ctx.Error("JSON marshaling failed", fasthttp.StatusInternalServerError)
+			return
+		}
+		ctx.Write(importedJSON)
+	})
+
+	a.httpserv.Handler = a.httpRoute.Handler
+	err := a.httpserv.ListenAndServe(addr)
+	if err != nil {
+		panic(err)
+	}
 	return
 }
 
