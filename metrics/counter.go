@@ -7,10 +7,11 @@ import (
 
 // 原子计数器 用于高并发的统一计数
 type atomicCounter struct {
-	enable bool
-	value  uint64
-	name   string
-	help   string
+	enable      bool
+	value       uint64
+	name        string
+	help        string
+	onCollectFn func([]Metric)
 }
 
 func NewAtomicCounter(enable bool, name, help string) Metric {
@@ -46,7 +47,14 @@ func (c *atomicCounter) Value() float64 {
 }
 
 func (c *atomicCounter) Collect() float64 {
+	if c.onCollectFn != nil {
+		c.onCollectFn([]Metric{c})
+	}
 	return float64(atomic.LoadUint64(&c.value))
+}
+
+func (c *atomicCounter) OnCollect(fn func([]Metric)) {
+	c.onCollectFn = fn
 }
 
 func (c *atomicCounter) Set(v float64) {

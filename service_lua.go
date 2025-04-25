@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/vela-ssoc/vela-demo/monitor/alarm"
 	"github.com/vela-ssoc/vela-demo/monitor/collector"
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 
@@ -181,6 +182,7 @@ func Preload(p lua.Preloader) {
 	// 指标
 	metrics.With(tab)
 
+	alarm.With(tab)
 	// 主服务
 	p.Set("monitor", lua.NewExport("lua.monitor.export", lua.WithFunc(NewMonitorL), lua.WithTable(tab)))
 }

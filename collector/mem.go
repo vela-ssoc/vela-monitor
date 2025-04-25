@@ -8,7 +8,7 @@ import (
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
-// 内存指标定义
+// 内存基础指标定义 (全局变量)
 var (
 	memUsage  = metrics.NewSimpleGauge("mem_usage_percent", "Memory Usage Percentage", getMemUsage)
 	memFree   = metrics.NewSimpleGauge("mem_free_GB", "Free Memory (GB)", getMemFree)
@@ -20,8 +20,9 @@ var (
 const MemInterval = 60
 
 type MemoryCollector struct {
-	mutex   sync.Mutex
-	metrics []*metrics.Metric
+	mutex       sync.Mutex
+	metrics     []*metrics.Metric
+	onCollectFn func([]*metrics.Metric)
 }
 
 func NewMemoryCollector(interval int) *MemoryCollector {
@@ -63,7 +64,14 @@ func (m *MemoryCollector) Collect() []*metrics.Metric {
 		memCached.Set(float64(v.Cached) / 1024 / 1024 / 1024)
 	}
 
+	if m.onCollectFn != nil {
+		m.onCollectFn(m.metrics)
+	}
 	return m.metrics
+}
+
+func (m *MemoryCollector) OnCollect(fn func([]*metrics.Metric)) {
+	m.onCollectFn = fn
 }
 
 func (m *MemoryCollector) Interval() int {

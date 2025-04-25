@@ -11,6 +11,8 @@ type Collector interface {
 	// Collect 执行数据采集并返回指标集合
 	Collect() []*metrics.Metric
 
+	OnCollect(func([]*metrics.Metric))
+
 	// Metrics 返回当前采集器的指标集合
 	Metrics() []*metrics.Metric
 

@@ -2,11 +2,12 @@ package metrics
 
 // 固定指标 用于记录和写入绝对值
 type SimpleGauge struct {
-	enable  bool
-	value   float64
-	name    string
-	help    string
-	collect func() float64
+	enable      bool
+	value       float64
+	name        string
+	help        string
+	collect     func() float64
+	onCollectFn func([]Metric)
 }
 
 type SimpleGaugeOption func(*SimpleGauge)
@@ -51,7 +52,6 @@ func (g *SimpleGauge) Help() string {
 
 func (g *SimpleGauge) Set(v float64) {
 	g.value = v
-
 }
 
 func (g *SimpleGauge) SetEnable(enable bool) {
@@ -62,5 +62,12 @@ func (g *SimpleGauge) Collect() float64 {
 	if g.collect == nil {
 		return 0
 	}
+	if g.onCollectFn != nil {
+		g.onCollectFn([]Metric{g})
+	}
 	return g.collect()
+}
+
+func (g *SimpleGauge) OnCollect(fn func([]Metric)) {
+	g.onCollectFn = fn
 }

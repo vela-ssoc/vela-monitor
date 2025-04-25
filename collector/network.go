@@ -7,7 +7,7 @@ import (
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
-// 网络指标定义
+// 网络基础指标定义  (全局变量)
 var (
 	netBytesSent   = metrics.NewSimpleGauge("net_bytes_sent", "Total bytes sent", getNetBytesSent)
 	netBytesRecv   = metrics.NewSimpleGauge("net_bytes_recv", "Total bytes received", getNetBytesRecv)
@@ -19,8 +19,9 @@ var (
 const NetInterval = 60
 
 type NetworkCollector struct {
-	mutex   sync.Mutex
-	metrics []*metrics.Metric
+	mutex       sync.Mutex
+	metrics     []*metrics.Metric
+	onCollectFn func([]*metrics.Metric)
 }
 
 func NewNetworkCollector(interval int) *NetworkCollector {
@@ -57,7 +58,14 @@ func (n *NetworkCollector) Collect() []*metrics.Metric {
 	netBytesRecv.Set(float64(stats[0].BytesRecv))
 	netPacketsSent.Set(float64(stats[0].PacketsSent))
 
+	if n.onCollectFn != nil {
+		n.onCollectFn(n.metrics)
+	}
 	return n.metrics
+}
+
+func (n *NetworkCollector) OnCollect(fn func([]*metrics.Metric)) {
+	n.onCollectFn = fn
 }
 
 func (n *NetworkCollector) Interval() int {

@@ -8,7 +8,7 @@ import (
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
-// CPU 指标 直接定义在全局变量中
+// CPU 基础指标  (全局变量)
 // 方便外部其它GO模块获取该指标 不仅仅是在lua中使用的
 var (
 	cpuUsage    = metrics.NewSimpleGauge("cpu_usage", "Cpu Usage", getCpuUsage)
@@ -26,8 +26,9 @@ var Interval = 5
 type CpuCollector struct {
 	mutex sync.Mutex
 	// 指标
-	metrics  []*metrics.Metric
-	interval int
+	metrics     []*metrics.Metric
+	interval    int
+	onCollectFn func([]*metrics.Metric)
 }
 
 func NewCpuCollector(interval int) *CpuCollector {
@@ -63,7 +64,14 @@ func (c *CpuCollector) Collect() []*metrics.Metric {
 		v := (*m).Collect()
 		(*m).Set(v)
 	}
+	if c.onCollectFn != nil {
+		c.onCollectFn(c.metrics)
+	}
 	return c.metrics
+}
+
+func (c *CpuCollector) OnCollect(fn func([]*metrics.Metric)) {
+	c.onCollectFn = fn
 }
 
 func (c *CpuCollector) Interval() int {

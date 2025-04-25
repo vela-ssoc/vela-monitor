@@ -69,13 +69,13 @@ func (a *PrometheusAdapter) RegisterAll() {
 			continue
 		}
 		a.RegisterCollector(c)
-		fmt.Println("PrometheusAdapter Register...", (*c).Name())
+		fmt.Println("PrometheusAdapter Register Collector...", (*c).Name())
 	}
 
 	// 单独指标
 	for _, m := range a.Metrics {
 		a.RegisterMetric(m)
-		fmt.Println("PrometheusAdapter Register...", (*m).Name())
+		fmt.Println("PrometheusAdapter Register Metrics...", (*m).Name())
 	}
 }
 

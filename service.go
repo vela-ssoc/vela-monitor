@@ -19,7 +19,7 @@ type MonitorService struct {
 	/*
 		单独指标集合
 		注意: 采集器里面也有指标集合, 不会在这里重复定义
-		这里的指标集合是为了方便用户在luc层自定义的指标
+		这里的指标集合是为了方便用户在lua层自定义的指标
 	*/
 	metrics map[string]*metrics.Metric
 

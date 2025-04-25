@@ -54,6 +54,11 @@ func (g *PrometheusCollector) Collect() []*metrics.Metric {
 	return nil
 }
 
+func (g *PrometheusCollector) OnCollect(fn func([]*metrics.Metric)) {
+	// TODO
+	// 普罗米修斯原生的collector
+}
+
 func (g *PrometheusCollector) Help() string {
 	return "prom_builtin_" + reflect.TypeOf(g.c).String()
 }

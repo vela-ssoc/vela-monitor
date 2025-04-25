@@ -7,7 +7,7 @@ import (
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
-// 磁盘指标定义
+// 磁盘基础指标定义 (全局变量)
 var (
 	diskUsage = metrics.NewSimpleGauge("disk_usage_percent", "磁盘空间使用率(windows为系统盘,linux为根目录)", getDiskUsage)
 	diskFree  = metrics.NewSimpleGauge("disk_free_GB", "磁盘剩余空间大小GB(windows为系统盘,linux为根目录)", getDiskFree)
@@ -18,8 +18,9 @@ var (
 const DiskInterval = 300
 
 type DiskCollector struct {
-	mutex   sync.Mutex
-	metrics []*metrics.Metric
+	mutex       sync.Mutex
+	metrics     []*metrics.Metric
+	onCollectFn func([]*metrics.Metric)
 }
 
 func NewDiskCollector(interval int) *DiskCollector {
@@ -55,7 +56,14 @@ func (d *DiskCollector) Collect() []*metrics.Metric {
 	diskFree.Set(float64(usage.Free) / 1024 / 1024 / 1024)
 	diskTotal.Set(float64(usage.Total) / 1024 / 1024 / 1024)
 
+	if d.onCollectFn != nil {
+		d.onCollectFn(d.metrics)
+	}
 	return d.metrics
+}
+
+func (d *DiskCollector) OnCollect(fn func([]*metrics.Metric)) {
+	d.onCollectFn = fn
 }
 
 func (d *DiskCollector) Interval() int {

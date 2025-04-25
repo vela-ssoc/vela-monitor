@@ -17,6 +17,7 @@ type Metric interface {
 	Set(v float64)
 	Collect() float64
 	SetEnable(enable bool)
+	OnCollect(fn func([]Metric))
 	// Describe 兼容prometheus 接口
 	// Describe(ch chan<- *prometheus.Desc)
 
@@ -26,3 +27,5 @@ type Metric interface {
 
 // MetricOption 通用的指标选项
 type MetricOption func(*Metric)
+
+type MetricsGroup map[string]Metric

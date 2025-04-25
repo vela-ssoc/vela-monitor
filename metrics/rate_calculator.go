@@ -10,17 +10,18 @@ import (
 // 滑动窗口速率计算器
 // 用于计算一段时间内的速率
 type RateCalculator struct {
-	name      string
-	help      string
-	enable    bool
-	value     float64
-	values    []float64
-	times     []time.Time
-	window    time.Duration
-	maxWindow int
-	metric    Metric
-	ctx       context.Context
-	mu        sync.Mutex
+	name        string
+	help        string
+	enable      bool
+	value       float64
+	values      []float64
+	times       []time.Time
+	window      time.Duration
+	maxWindow   int
+	metric      Metric
+	ctx         context.Context
+	mu          sync.Mutex
+	onCollectFn func([]Metric)
 }
 
 type RateCalculatorOption func(*RateCalculator)
@@ -115,7 +116,14 @@ func (r *RateCalculator) AddSample(value float64, t time.Time) float64 {
 }
 
 func (r *RateCalculator) Collect() float64 {
+	if r.onCollectFn != nil {
+		r.onCollectFn([]Metric{r})
+	}
 	return r.value
+}
+
+func (r *RateCalculator) OnCollect(fn func([]Metric)) {
+	r.onCollectFn = fn
 }
 
 func (r *RateCalculator) SetEnable(enable bool) {
