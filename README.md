@@ -32,8 +32,14 @@ local cpu = luakit.monitor.collectors.cpu{
 }
 m.collectors(cpu)  -- 添加到监控服务
 ```
-
-
+### 磁盘采集器说明
+磁盘采集器默认采集点为`/`分区(Linux) 或`C:`分区(Windows)，可以通过`targets`参数指定其他挂载点。
+```lua
+local disk = luakit.monitor.collectors.disk{
+    interval = 10,  -- 采集间隔(秒)
+    targets = {"D:\\", "E:\\"}  -- 指定挂载点
+}
+```
 ## 指标
 
 ### 1. 原子计数器(atomic counter)
