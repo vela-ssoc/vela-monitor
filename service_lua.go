@@ -192,7 +192,9 @@ func Preload(p lua.Preloader) {
 	// 指标
 	metrics.With(tab)
 
+	// 告警器
 	alarm.With(tab)
+
 	// 主服务
 	p.Set("monitor", lua.NewExport("lua.monitor.export", lua.WithFunc(NewMonitorL), lua.WithTable(tab)))
 }

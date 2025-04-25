@@ -21,6 +21,7 @@ type DiskCollector struct {
 	mutex       sync.Mutex
 	metrics     []*metrics.Metric
 	onCollectFn func([]*metrics.Metric)
+	targets     []string
 }
 
 func NewDiskCollector(interval int) *DiskCollector {
@@ -32,6 +33,33 @@ func NewDiskCollector(interval int) *DiskCollector {
 			&diskTotal,
 		},
 	}
+}
+
+func (d *DiskCollector) AddTarget(target string) error {
+	d.targets = append(d.targets, target)
+	m_usage := metrics.NewSimpleGauge("disk_usage_percent_"+target, "磁盘空间使用率("+target+")", func() float64 {
+		usage, err := disk.Usage("/")
+		if err != nil {
+			return 0
+		}
+		return usage.UsedPercent
+	})
+	m_free := metrics.NewSimpleGauge("disk_free_GB_"+target, "磁盘剩余空间大小GB("+target+")", func() float64 {
+		usage, err := disk.Usage("/")
+		if err != nil {
+			return 0
+		}
+		return float64(usage.Free) / 1024 / 1024 / 1024
+	})
+	m_total := metrics.NewSimpleGauge("disk_total_GB_"+target, "磁盘总空间大小GB("+target+")", func() float64 {
+		usage, err := disk.Usage("/")
+		if err != nil {
+			return 0
+		}
+		return float64(usage.Total) / 1024 / 1024 / 1024
+	})
+	d.metrics = append(d.metrics, &m_usage, &m_free, &m_total)
+	return nil
 }
 
 func (d *DiskCollector) Name() string {
@@ -51,10 +79,28 @@ func (d *DiskCollector) Collect() []*metrics.Metric {
 		return nil
 	}
 
-	// 内置全局指标
+	// 内置全局指标采集
 	diskUsage.Set(usage.UsedPercent)
 	diskFree.Set(float64(usage.Free) / 1024 / 1024 / 1024)
 	diskTotal.Set(float64(usage.Total) / 1024 / 1024 / 1024)
+
+	// 自定义目录指标采集
+	for _, target := range d.targets {
+		usage, err := disk.Usage(target)
+		if err != nil {
+			return nil
+		}
+		for _, m := range d.metrics {
+			switch (*m).Name() {
+			case "disk_usage_percent_" + target:
+				(*m).Set(usage.UsedPercent)
+			case "disk_free_GB_" + target:
+				(*m).Set(float64(usage.Free) / 1024 / 1024 / 1024)
+			case "disk_total_GB_" + target:
+				(*m).Set(float64(usage.Total) / 1024 / 1024 / 1024)
+			}
+		}
+	}
 
 	if d.onCollectFn != nil {
 		d.onCollectFn(d.metrics)

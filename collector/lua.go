@@ -13,7 +13,14 @@ func NewCpuCollectorL(L *lua.LState) int {
 func NewDiskCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
 	i := tab.RawGetString("interval").(lua.LNumber)
+	targets := tab.RawGetString("targets").(*lua.LTable)
 	c := NewDiskCollector(int(i))
+	if targets != nil {
+		for i := 1; i <= targets.Len(); i++ {
+			target := targets.RawGetInt(i).String()
+			c.AddTarget(target)
+		}
+	}
 	L.Push(lua.ReflectTo(c))
 	return 1
 }
