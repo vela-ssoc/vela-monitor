@@ -6,7 +6,7 @@ local metrics = luakit.monitor.metrics
 local cpu = default_collectors.cpu {
     interval = 10,
 }
-alarm.addSimple(cpu,"cpu_usage > 1", "cpu使用率超过1%")
+alarm.addSimple(cpu,"cpu_usage > 10", "cpu使用率超过10%").outputLog()
 --alarm.addAvg(cpu,"cpu.usage > 80", "cpu使用率超过80%", 5) -- 5次采集平均值
 
 local mem = default_collectors.mem {

@@ -117,7 +117,7 @@ TODO
 使用样例:
 ```lua
 local alarm=luakit.monitor.alarm.simple("简单告警器")
-alarm.addSimple(cpu,"cpu_usage > 1", "cpu使用率超过1%")
+alarm.addSimple(cpu,"cpu_usage > 1", "cpu使用率超过1%").outputLog()
 ```
 
 

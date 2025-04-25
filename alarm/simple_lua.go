@@ -42,6 +42,7 @@ func (sa *SimpleAlarm) addSimpleL(L *lua.LState) int {
 			)
 		}
 	}
+	L.Push(lua.ReflectTo(sa))
 	return 1
 }
 
@@ -55,8 +56,8 @@ func (sa *SimpleAlarm) outputLogL(L *lua.LState) int {
 		fmt.Println(info)
 		return true
 	})
-	// TODO
-	return 0
+	L.Push(lua.ReflectTo(sa))
+	return 1
 }
 
 func (sa *SimpleAlarm) Index(L *lua.LState, key string) lua.LValue {
