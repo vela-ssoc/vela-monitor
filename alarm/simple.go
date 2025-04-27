@@ -6,6 +6,14 @@ package alarm
 type SimpleAlarm struct {
 	name string
 	fns  []func(AlarmInfo) bool
+
+	/*
+		告警抑制功能使用
+		2025年4月27日
+		多级抑制功能的实现(beta)
+	*/
+
+	suppressor *Suppressor
 }
 
 func NewSimpleAlarm(name string) *SimpleAlarm {
@@ -17,6 +25,11 @@ func (sa *SimpleAlarm) AddHandler(fn func(AlarmInfo) bool) {
 }
 
 func (sa *SimpleAlarm) Execute(info AlarmInfo) bool {
+	// 使用多个Suppressor检查是否需要抑制告警
+	if sa.suppressor != nil && sa.suppressor.ShouldSuppress(&info) {
+		return false
+	}
+
 	for _, fn := range sa.fns {
 		if !fn(info) {
 			return false

@@ -7,6 +7,8 @@ type AlarmInfo struct {
 	Content string `json:"content"`
 	// 告警级别，可选值：info, warning, error, fatal
 	Level string `json:"level"`
+
+	SuppressInfo string `json:"suppress_info"`
 }
 
 func (info *AlarmInfo) String() string {

@@ -2,6 +2,7 @@ package alarm
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/vela-public/onekit/cond"
 	"github.com/vela-public/onekit/lua"
@@ -60,6 +61,22 @@ func (sa *SimpleAlarm) outputLogL(L *lua.LState) int {
 	return 1
 }
 
+func (sa *SimpleAlarm) addSuppressionL(L *lua.LState) int {
+	n := L.GetTop()
+	if n != 2 {
+		L.RaiseError("invalid arguments")
+		return 0
+	}
+	duration := L.CheckInt(1)
+	maxAlerts := L.CheckInt(2)
+	sa.suppressor.rules = append(sa.suppressor.rules, &SuppressRule{
+		suppressDuration: time.Duration(duration) * time.Second,
+		maxAlerts:        maxAlerts,
+	})
+	L.Push(lua.ReflectTo(sa))
+	return 1
+}
+
 func (sa *SimpleAlarm) Index(L *lua.LState, key string) lua.LValue {
 	switch key {
 	case "addSimple":
@@ -68,6 +85,8 @@ func (sa *SimpleAlarm) Index(L *lua.LState, key string) lua.LValue {
 		return lua.NewFunction(sa.addAvgL)
 	case "outputLog":
 		return lua.NewFunction(sa.outputLogL)
+	case "addSuppression":
+		return lua.NewFunction(sa.addSuppressionL)
 	default:
 		return lua.LNil
 	}
