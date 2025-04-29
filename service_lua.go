@@ -125,17 +125,10 @@ func (ms *MonitorService) StartPormPushL(L *lua.LState) int {
 func (ms *MonitorService) NewCollectorsL(L *lua.LState) int {
 	n := L.GetTop()
 	for i := 1; i <= n; i++ {
-		v := L.Get(i)
-		if v.Type() != lua.LTGeneric {
-			L.RaiseError("expected generic type, got %s", v.Type())
-			return 0
-		}
+		v := lua.Check[lua.GenericType](L, L.Get(i))
+		c := v.Unpack().(collector.Collector)
+		ms.collector[c.Name()] = &c
 
-		if dat, ok := v.(lua.GenericType); ok {
-			// ms.config.Collectors = append(ms.config.Collectors, dat.Unpack().(collector.Collector))
-			c := dat.Unpack().(collector.Collector)
-			ms.collector[c.Name()] = &c
-		}
 	}
 	return 0
 }
@@ -143,11 +136,7 @@ func (ms *MonitorService) NewCollectorsL(L *lua.LState) int {
 func (ms *MonitorService) NewMetricsL(L *lua.LState) int {
 	n := L.GetTop()
 	for i := 1; i <= n; i++ {
-		v := L.Get(i)
-		if v.Type() != lua.LTGeneric {
-			L.RaiseError("expected generic type, got %s", v.Type())
-			return 0
-		}
+		v := lua.Check[lua.GenericType](L, L.Get(i))
 		if dat, ok := v.(lua.GenericType); ok {
 			c := dat.Unpack().(metrics.Metric)
 			ms.metrics[c.Name()] = &c
