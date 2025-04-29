@@ -7,6 +7,7 @@ import (
 	"github.com/vela-public/onekit/cond"
 	"github.com/vela-public/onekit/lua"
 	"github.com/vela-ssoc/vela-demo/monitor/collector"
+	"github.com/vela-ssoc/vela-demo/monitor/logger"
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
@@ -54,7 +55,7 @@ func (sa *SimpleAlarm) addAvgL(L *lua.LState) int {
 
 func (sa *SimpleAlarm) outputLogL(L *lua.LState) int {
 	sa.AddHandler(func(info AlarmInfo) bool {
-		fmt.Println(info)
+		logger.Debugf("alarm: %s", info.Content)
 		return true
 	})
 	L.Push(lua.ReflectTo(sa))

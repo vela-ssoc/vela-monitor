@@ -13,6 +13,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
 	"github.com/vela-ssoc/vela-demo/monitor/collector"
+	"github.com/vela-ssoc/vela-demo/monitor/logger"
 	"github.com/vela-ssoc/vela-demo/monitor/metrics"
 )
 
@@ -63,26 +64,26 @@ func (a *PrometheusAdapter) RegisterAll() {
 		if promCollector, ok := (*c).(*collector.PrometheusCollector); ok {
 			err := a.registry.Register(promCollector.Get())
 			if err != nil {
-				fmt.Printf("register metric %s failed: %v\n", (*c).Name(), err)
+				logger.Infof("register metric %s failed: %v\n", (*c).Name(), err)
 				continue
 			}
 			continue
 		}
 		a.RegisterCollector(c)
-		fmt.Println("PrometheusAdapter Register Collector...", (*c).Name())
+		logger.Infof("PrometheusAdapter Register Collector... %s \n", (*c).Name())
 	}
 
 	// 单独指标
 	for _, m := range a.Metrics {
 		a.RegisterMetric(m)
-		fmt.Println("PrometheusAdapter Register Metrics...", (*m).Name())
+		logger.Infof("PrometheusAdapter Register Metrics...%s \n", (*m).Name())
 	}
 }
 
 func (a *PrometheusAdapter) RegisterCollector(c *collector.Collector) {
 	err := a.registry.Register(NewPrometheusCollectorWarp(c))
 	if err != nil {
-		fmt.Printf("register metric %s failed: %v\n", (*c).Name(), err)
+		logger.Errorf("register metric %s failed: %v\n", (*c).Name(), err)
 		return
 	}
 }
@@ -90,7 +91,7 @@ func (a *PrometheusAdapter) RegisterCollector(c *collector.Collector) {
 func (a *PrometheusAdapter) RegisterMetric(m *metrics.Metric) {
 	err := a.registry.Register(NewPrometheusMetricWarp(m))
 	if err != nil {
-		fmt.Printf("register metric %s failed: %v\n", (*m).Name(), err)
+		logger.Errorf("register metric %s failed: %v\n", (*m).Name(), err)
 		return
 	}
 }
@@ -121,7 +122,7 @@ func (a *PrometheusAdapter) StartPushServe() error {
 
 		for range ticker.C {
 			if err := pusher.Push(); err != nil {
-				fmt.Printf("Could not push metrics to Prometheus Push Gateway: %v\n", err)
+				logger.Errorf("Could not push metrics to Prometheus Push Gateway: %v\n", err)
 			}
 		}
 	}()
@@ -155,9 +156,9 @@ func (a *PrometheusAdapter) StartPullServeFastHttp() error {
 			Handler: a.httpRoute.Handler,
 		}
 		go func() {
-			fmt.Println("Starting fasthttp server on:", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
+			logger.Infof("Starting fasthttp server on:%s %s \n", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
 			if err := a.httpServ.ListenAndServe(a.Cfg.PormPullAddr); err != nil {
-				fmt.Printf("Error starting fasthttp server: %v\n", err)
+				logger.Errorf("Error starting fasthttp server: %v\n", err)
 			}
 		}()
 	} else {
@@ -177,22 +178,10 @@ func (a *PrometheusAdapter) StartPullServeHttp() error {
 	http.Handle(a.Cfg.PormPullUri, promhttp.HandlerFor(a.registry, promhttp.HandlerOpts{}))
 	server := &http.Server{Addr: a.Cfg.PormPullAddr}
 	go func() {
-		fmt.Println("Starting server on :", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
+		logger.Infof("Starting server on :", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("Error starting server: %v\n", err)
+			logger.Errorf("Error starting server: %v\n", err)
 		}
 	}()
-	// 优雅退出 防止服务被kill后 端口还未释放
-	//sigCh := make(chan os.Signal, 1)
-	//signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-	//<-sigCh
-	//
-	//fmt.Println("Shutting down server...")
-	//ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	//defer cancel()
-	//if err := server.Shutdown(ctx); err != nil {
-	//	fmt.Printf("Error shutting down server: %v\n", err)
-	//}
-	//fmt.Printf("Prometheus pull Server [%s] stopped\n", a.Cfg.PormPullAddr)
 	return nil
 }
