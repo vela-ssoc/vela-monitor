@@ -14,13 +14,18 @@ type Suppressor struct {
 type SuppressRule struct {
 	// 抑制持续时间
 	suppressDuration time.Duration
+
 	// 最大告警次数
 	maxAlerts int
 
-	// 上次告警时间和告警次数
-	lastAlertTime   time.Time
+	// 上次告警时间
+	lastAlertTime time.Time
+
+	// 统计窗口开始时间和
 	windowStartTime time.Time
-	alertCount      int
+
+	// 统计窗口内的告警次数
+	alertCount int
 }
 
 func NewSuppressor() *Suppressor {

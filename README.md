@@ -107,7 +107,7 @@ m.PrometheusPush{
 ``` lua
  m.SimplePull("0.0.0.0:9101")
 ```
-接口URI
+#### 接口URI
 `/onekit/monitor/collect` 立即执行采集一次, 返回所有采集器的采集数据，格式为JSON。  
 `/onekit/monitor/view` 返回所有数据，格式为JSON。    
 **注意**: 如果采集器/指标没有配置自动定时采集, 那么里面的一些指标不会更新  
@@ -120,6 +120,10 @@ TODO
 ### 简单告警器
 **还在开发中, 部分功能还未完成**  
 只支持直接指标的告警, 暂时不支持复杂运算
+方法 `outputLog()` 会输出告警日志, 可以通过配置日志输出到文件或其他方式
+方法 `outputSiem()` 会发送告警到SIEM, 可以通过配置SIEM地址和参数来发送告警
+方法 `addSuppression(int,int)` 可以添加抑制规则, 第一个参数为抑制时间(秒), 第二个参数为抑制次数, 当在抑制时间内达到抑制次数时, 告警器会抑制告警
+
 使用样例:
 ```lua
 local alarm=luakit.monitor.alarm.simple("简单告警器")
@@ -132,5 +136,51 @@ alarm.addSimple(cpu,"cpu_usage > 1", "cpu使用率超过1%").outputLog()
 m.start()
 ```
 
-## 完整示例
+## Lua调用完整示例
 参考`tests/monitor.lua`中的示例代码
+
+## Go调用Lua定义的采集器
+>有时候, 我们需要在GO代码中进行更底层的一些计数和性能统计操作.  
+此时可以通过接收调用Lua定义的采集器来实现, 这样使得Go中采集器更加灵活和可扩展.  
+
+以下示例展示了如何在Go代码中接收并使用Lua中定义的采集器对象.
+更为详细的示例请参考`tests/demotask.go`中的示例代码
+```go
+// 预制一个计数器指标 并在相应采集点插桩
+var req_cnt *metrics.AtomicCounter 
+// 或者预制一个计数器指标list 
+// 再或者 实现GeneralCollectorI接口对象 并在相应的采集点插桩
+
+
+func demoL(L *lua.LState) {
+    // 假设Lua脚本已加载并定义了采集器
+    c := lua.Check[lua.GenericType](L, L.Get(1))
+
+
+
+    if v, ok := c.Unpack().(collector.GeneralCollectorI); ok {
+        fmt.Println("采集器名称:", v.Name())
+        ms = v.Metrics()
+    }
+
+    for _, m := range ms {
+        fmt.Println("指标名称:", (*m).Name(), "值:", (*m).Value())
+        if v, ok := (*m).(*metrics.AtomicCounter); ok {
+            if (*m).Name() == "req_fail_cnt" {
+                req_cnt = v
+            }
+        }
+    }
+
+    // 模拟计数器操作
+    if req_cnt != nil {
+        req_cnt.Add(10)
+        fmt.Println("更新后的计数器值:", req_cnt.Value())
+    }
+}
+```
+
+### 说明
+- 调用者可以通过接口断言(`collector.GeneralCollectorI`)来获取采集器实例。
+- 遍历采集器中的指标列表，根据指标名称进行映射和操作。
+- 在操作指标前，建议进行空值检查以避免运行时错误。

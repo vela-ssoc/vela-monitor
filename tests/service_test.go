@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/vela-public/onekit/lua"
 	"github.com/vela-public/onekit/luakit"
 	"github.com/vela-public/onekit/treekit"
 	"github.com/vela-ssoc/vela-demo/monitor"
@@ -14,6 +15,9 @@ import (
 func TestService(t *testing.T) {
 	kit := luakit.Apply("luakit",
 		monitor.Preload,
+		func(p lua.Preloader) {
+			p.Set("demotask", lua.NewExport("lua.demotask.export", lua.WithFunc(demoTaskL)))
+		},
 	)
 	option := treekit.NewMicoServiceOption()
 	option.Protect(false)

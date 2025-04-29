@@ -1,6 +1,9 @@
 package collector
 
-import "github.com/vela-public/onekit/lua"
+import (
+	"github.com/vela-public/onekit/lua"
+	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+)
 
 func NewCpuCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
@@ -57,9 +60,34 @@ func NewSelfProcessCollectorL(L *lua.LState) int {
 	return 1
 }
 
+func NewGeneralL(L *lua.LState) int {
+	tab := L.CheckTable(1)
+	name := tab.RawGetString("name").String()
+	help := tab.RawGetString("help").String()
+	// i := tab.RawGetString("interval").(lua.LNumber)
+	c := tab.RawGet(lua.LString("metrics")).(*lua.LTable)
+	co := &GeneralCollector{
+		name:     name,
+		help:     help,
+		inverval: 0,
+		metrics:  make([]*metrics.Metric, 0),
+	}
+	if c != nil {
+		for i := 1; i <= c.Len(); i++ {
+			v := lua.Check[lua.GenericType](L, c.RawGetInt(i))
+			if dat, ok := v.(lua.GenericType); ok {
+				c := dat.Unpack().(metrics.Metric)
+				co.metrics = append(co.metrics, &c)
+			}
+		}
+	}
+	L.Push(lua.ReflectTo(co))
+	return 1
+}
+
 func With(kv lua.UserKV) {
 	tab := lua.NewUserKV()
-
+	tab.Set("new", lua.NewExport("lua.monitor.collectors.general", lua.WithFunc(NewGeneralL)))
 	tab.Set("cpu", lua.NewExport("lua.monitor.collectors.cpu", lua.WithFunc(NewCpuCollectorL)))
 	tab.Set("disk", lua.NewExport("lua.monitor.collectors.disk", lua.WithFunc(NewDiskCollectorL)))
 	tab.Set("mem", lua.NewExport("lua.monitor.collectors.memory", lua.WithFunc(NewMemoryCollectorL)))

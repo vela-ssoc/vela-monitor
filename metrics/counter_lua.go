@@ -5,19 +5,19 @@ import (
 )
 
 // 为atomicCounter实现Lua接口
-func (c *atomicCounter) String() string                         { return "metrics.counter " + c.name }
-func (c *atomicCounter) Type() lua.LValueType                   { return lua.LTObject }
-func (c *atomicCounter) AssertFloat64() (float64, bool)         { return c.Value(), true }
-func (c *atomicCounter) AssertString() (string, bool)           { return "", false }
-func (c *atomicCounter) AssertFunction() (*lua.LFunction, bool) { return nil, false }
-func (c *atomicCounter) Hijack(fsm *lua.CallFrameFSM) bool      { return false }
+func (c *AtomicCounter) String() string                         { return "metrics.counter " + c.name }
+func (c *AtomicCounter) Type() lua.LValueType                   { return lua.LTObject }
+func (c *AtomicCounter) AssertFloat64() (float64, bool)         { return c.Value(), true }
+func (c *AtomicCounter) AssertString() (string, bool)           { return "", false }
+func (c *AtomicCounter) AssertFunction() (*lua.LFunction, bool) { return nil, false }
+func (c *AtomicCounter) Hijack(fsm *lua.CallFrameFSM) bool      { return false }
 
-func (c *atomicCounter) incrL(L *lua.LState) int {
+func (c *AtomicCounter) incrL(L *lua.LState) int {
 	c.Inc()
 	return 0
 }
 
-func (c *atomicCounter) addL(L *lua.LState) int {
+func (c *AtomicCounter) addL(L *lua.LState) int {
 	if L.GetTop() > 0 {
 		v := L.CheckNumber(1)
 		c.Add(uint64(v))
@@ -25,7 +25,7 @@ func (c *atomicCounter) addL(L *lua.LState) int {
 	return 0
 }
 
-func (c *atomicCounter) setL(L *lua.LState) int {
+func (c *AtomicCounter) setL(L *lua.LState) int {
 	if L.GetTop() > 0 {
 		v := L.CheckInt64(1)
 		c.Set(float64(v))
@@ -33,7 +33,7 @@ func (c *atomicCounter) setL(L *lua.LState) int {
 	return 0
 }
 
-func (c *atomicCounter) genRateMetricL(L *lua.LState) int {
+func (c *AtomicCounter) genRateMetricL(L *lua.LState) int {
 	// tab := L.CheckTable(1)
 	// if lv, ok := L.Get(1).(*lua.LTable); ok {
 
@@ -51,7 +51,7 @@ func (c *atomicCounter) genRateMetricL(L *lua.LState) int {
 	return 1
 }
 
-func (c *atomicCounter) Index(L *lua.LState, key string) lua.LValue {
+func (c *AtomicCounter) Index(L *lua.LState, key string) lua.LValue {
 	switch key {
 	case "incr":
 		return lua.NewFunction(c.incrL)

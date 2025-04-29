@@ -11,7 +11,7 @@ import (
 只完成一些最基本的测试
 这个测试用例还需要再完善
 需要考虑到多个抑制规则的情况
-以及后面一些更特殊的其它 也需要考虑到
+以及后面一些更特殊的场景 也需要考虑到
 */
 func TestSuppressor_ShouldSuppress(t *testing.T) {
 	tests := []struct {
