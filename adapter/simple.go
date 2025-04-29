@@ -81,10 +81,13 @@ func (a SimpleAdapter) StartPullServeFastHttp(addr string, collectFn func() map[
 	})
 
 	a.httpserv.Handler = a.httpRoute.Handler
-	err := a.httpserv.ListenAndServe(addr)
-	if err != nil {
-		panic(err)
-	}
+	go func() {
+		err := a.httpserv.ListenAndServe(addr)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	return
 }
 
