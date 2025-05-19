@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
+	monitor "github.com/vela-ssoc/vela-monitor"
+
 	"github.com/vela-public/onekit/lua"
 	"github.com/vela-public/onekit/luakit"
 	"github.com/vela-public/onekit/treekit"
-	monitor "github.com/vela-ssoc/vela-monitor"
 )
 
 func TestService(t *testing.T) {

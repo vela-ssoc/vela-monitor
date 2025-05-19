@@ -4,8 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shirou/gopsutil/cpu"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/shirou/gopsutil/cpu"
 )
 
 // CPU 基础指标  (全局变量)

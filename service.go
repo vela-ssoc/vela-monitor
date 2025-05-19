@@ -3,11 +3,12 @@ package monitor
 import (
 	"fmt"
 
-	"github.com/vela-public/onekit/libkit"
-	"github.com/vela-public/onekit/lua"
 	"github.com/vela-ssoc/vela-monitor/adapter"
 	"github.com/vela-ssoc/vela-monitor/collector"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/vela-public/onekit/libkit"
+	"github.com/vela-public/onekit/lua"
 )
 
 type MonitorService struct {

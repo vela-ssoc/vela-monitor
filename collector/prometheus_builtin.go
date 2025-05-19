@@ -3,9 +3,10 @@ package collector
 import (
 	"reflect"
 
+	"github.com/vela-ssoc/vela-monitor/metrics"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
-	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 // 普罗米修斯原生的collector

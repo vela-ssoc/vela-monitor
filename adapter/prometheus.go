@@ -5,6 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/vela-ssoc/vela-monitor/collector"
+	"github.com/vela-ssoc/vela-monitor/logger"
+	"github.com/vela-ssoc/vela-monitor/metrics"
+
 	"github.com/fasthttp/router"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -12,9 +16,6 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
-	"github.com/vela-ssoc/vela-monitor/collector"
-	"github.com/vela-ssoc/vela-monitor/logger"
-	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 type PrometheusAdapter struct {

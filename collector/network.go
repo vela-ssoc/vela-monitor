@@ -3,8 +3,9 @@ package collector
 import (
 	"sync"
 
-	"github.com/shirou/gopsutil/net"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/shirou/gopsutil/net"
 )
 
 // 网络基础指标定义  (全局变量)

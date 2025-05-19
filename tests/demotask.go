@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vela-public/onekit/lua"
 	"github.com/vela-ssoc/vela-monitor/collector"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/vela-public/onekit/lua"
 )
 
 /*

@@ -1,8 +1,9 @@
 package collector
 
 import (
-	"github.com/vela-public/onekit/lua"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/vela-public/onekit/lua"
 )
 
 func NewCpuCollectorL(L *lua.LState) int {

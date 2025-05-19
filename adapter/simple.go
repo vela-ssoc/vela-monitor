@@ -3,10 +3,11 @@ package adapter
 import (
 	"encoding/json"
 
-	"github.com/fasthttp/router"
-	"github.com/valyala/fasthttp"
 	"github.com/vela-ssoc/vela-monitor/collector"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/fasthttp/router"
+	"github.com/valyala/fasthttp"
 )
 
 /*

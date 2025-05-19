@@ -3,8 +3,9 @@ package collector
 import (
 	"sync"
 
-	"github.com/shirou/gopsutil/disk"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/shirou/gopsutil/disk"
 )
 
 // 磁盘基础指标定义 (全局变量)

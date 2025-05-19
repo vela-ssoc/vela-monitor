@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vela-public/onekit/cond"
-	"github.com/vela-public/onekit/lua"
 	"github.com/vela-ssoc/vela-monitor/collector"
 	"github.com/vela-ssoc/vela-monitor/logger"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/vela-public/onekit/cond"
+	"github.com/vela-public/onekit/lua"
 )
 
 func (sa *SimpleAlarm) addSimpleL(L *lua.LState) int {

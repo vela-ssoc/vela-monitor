@@ -4,8 +4,9 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/shirou/gopsutil/mem"
 	"github.com/vela-ssoc/vela-monitor/metrics"
+
+	"github.com/shirou/gopsutil/mem"
 )
 
 // 内存基础指标定义 (全局变量)

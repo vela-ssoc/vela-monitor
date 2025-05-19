@@ -8,10 +8,11 @@ import (
 	"github.com/vela-ssoc/vela-monitor/collector"
 	"github.com/vela-ssoc/vela-monitor/metrics"
 
+	"github.com/vela-ssoc/vela-monitor/adapter"
+
 	"github.com/vela-public/onekit/lua"
 	"github.com/vela-public/onekit/luakit"
 	"github.com/vela-public/onekit/treekit"
-	"github.com/vela-ssoc/vela-monitor/adapter"
 )
 
 var MonitorserviceType = reflect.TypeOf((*MonitorService)(nil)).String()
