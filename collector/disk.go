@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/shirou/gopsutil/disk"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 // 磁盘基础指标定义 (全局变量)

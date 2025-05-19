@@ -5,9 +5,9 @@ import (
 
 	"github.com/vela-public/onekit/libkit"
 	"github.com/vela-public/onekit/lua"
-	"github.com/vela-ssoc/vela-demo/monitor/adapter"
-	"github.com/vela-ssoc/vela-demo/monitor/collector"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/adapter"
+	"github.com/vela-ssoc/vela-monitor/collector"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 type MonitorService struct {

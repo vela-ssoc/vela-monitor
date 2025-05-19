@@ -12,9 +12,9 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
-	"github.com/vela-ssoc/vela-demo/monitor/collector"
-	"github.com/vela-ssoc/vela-demo/monitor/logger"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/collector"
+	"github.com/vela-ssoc/vela-monitor/logger"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 type PrometheusAdapter struct {

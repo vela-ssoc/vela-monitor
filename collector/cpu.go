@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 // CPU 基础指标  (全局变量)

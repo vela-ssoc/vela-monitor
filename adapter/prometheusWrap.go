@@ -2,8 +2,8 @@ package adapter
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/vela-ssoc/vela-demo/monitor/collector"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/collector"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 type PrometheusCollectorWarp struct {

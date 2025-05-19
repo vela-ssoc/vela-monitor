@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/shirou/gopsutil/net"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 // 网络基础指标定义  (全局变量)

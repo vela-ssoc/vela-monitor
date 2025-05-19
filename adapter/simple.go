@@ -5,8 +5,8 @@ import (
 
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
-	"github.com/vela-ssoc/vela-demo/monitor/collector"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/collector"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 )
 
 /*

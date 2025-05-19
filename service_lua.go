@@ -4,14 +4,14 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/vela-ssoc/vela-demo/monitor/alarm"
-	"github.com/vela-ssoc/vela-demo/monitor/collector"
-	"github.com/vela-ssoc/vela-demo/monitor/metrics"
+	"github.com/vela-ssoc/vela-monitor/alarm"
+	"github.com/vela-ssoc/vela-monitor/collector"
+	"github.com/vela-ssoc/vela-monitor/metrics"
 
 	"github.com/vela-public/onekit/lua"
 	"github.com/vela-public/onekit/luakit"
 	"github.com/vela-public/onekit/treekit"
-	"github.com/vela-ssoc/vela-demo/monitor/adapter"
+	"github.com/vela-ssoc/vela-monitor/adapter"
 )
 
 var MonitorserviceType = reflect.TypeOf((*MonitorService)(nil)).String()

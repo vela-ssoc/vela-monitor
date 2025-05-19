@@ -166,6 +166,8 @@ func demoL(L *lua.LState) {
     for _, m := range ms {
         fmt.Println("指标名称:", (*m).Name(), "值:", (*m).Value())
         if v, ok := (*m).(*metrics.AtomicCounter); ok {
+            // 把lua中定义的采集器映射到你预置的Go中的指标对象
+            // 具体怎样的映射规则, 取决于你自己
             if (*m).Name() == "req_fail_cnt" {
                 req_cnt = v
             }

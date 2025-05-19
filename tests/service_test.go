@@ -9,7 +9,7 @@ import (
 	"github.com/vela-public/onekit/lua"
 	"github.com/vela-public/onekit/luakit"
 	"github.com/vela-public/onekit/treekit"
-	"github.com/vela-ssoc/vela-demo/monitor"
+	monitor "github.com/vela-ssoc/vela-monitor"
 )
 
 func TestService(t *testing.T) {
