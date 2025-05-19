@@ -1,6 +1,6 @@
 package collector
 
-import "github.com/vela-ssoc/vela-demo/monitor/metrics"
+import "github.com/vela-ssoc/vela-monitor/metrics"
 
 // Collector 通用采集器接口
 type Collector interface {
