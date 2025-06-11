@@ -71,6 +71,9 @@ func (sa *SimpleAlarm) addSuppressionL(L *lua.LState) int {
 	}
 	duration := L.CheckInt(1)
 	maxAlerts := L.CheckInt(2)
+	if sa.suppressor == nil {
+		sa.suppressor = NewSuppressor()
+	}
 	sa.suppressor.rules = append(sa.suppressor.rules, &SuppressRule{
 		suppressDuration: time.Duration(duration) * time.Second,
 		maxAlerts:        maxAlerts,

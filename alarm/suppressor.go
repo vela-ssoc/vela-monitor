@@ -29,7 +29,7 @@ type SuppressRule struct {
 }
 
 func NewSuppressor() *Suppressor {
-	return &Suppressor{}
+	return &Suppressor{rules: make([]*SuppressRule, 0)}
 }
 
 func (s *Suppressor) ShouldSuppress(info *AlarmInfo) bool {

@@ -108,7 +108,7 @@ func (r *RateCalculator) AddSample(value float64, t time.Time) float64 {
 
 	// 计算最近两个窗口内的速率
 	delta := r.values[len(r.values)-1] - r.values[len(r.values)-2]
-	elapsed := r.times[len(r.times)-1].Second() - r.times[len(r.times)-2].Second()
+	elapsed := r.times[len(r.times)-1].Unix() - r.times[len(r.times)-2].Unix()
 
 	r.value = delta / float64(elapsed)
 
