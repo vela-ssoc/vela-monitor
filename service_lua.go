@@ -61,6 +61,12 @@ func (ms *MonitorService) PormPullRegTo(L *lua.LState) int {
 	return 0
 }
 
+func (ms *MonitorService) Startup(env *treekit.Env) error {
+	// 兼容onekit 1.7以上版本
+	ms.Start()
+	return nil
+}
+
 func (ms *MonitorService) StartPormPullL(L *lua.LState) int {
 	// 单例模式 暂时不让用户创建多个Prometheus服务
 	// 当前服务已经存在时，启动pull并返回
