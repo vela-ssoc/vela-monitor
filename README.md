@@ -25,19 +25,72 @@ cnt.incr()  -- 计数器+1
 - 普罗米修斯原生GO指标采集器
 - 普罗米修斯原生自身进程指标采集器
 
-示例：
+### 1. CPU采集器
+- **功能**：采集CPU使用率和CPU时间
+- **Lua配置示例**：
 ```lua
 local cpu = luakit.monitor.collectors.cpu{
-    interval = 10  -- 采集间隔(秒)
+    interval = 10,  -- 采集间隔(秒)
 }
-m.collectors(cpu)  -- 添加到监控服务
 ```
-### 磁盘采集器说明
-磁盘采集器默认采集点为`/`分区(Linux) 或`C:`分区(Windows)，可以通过`targets`参数指定其他挂载点。
+
+### 2. 内存采集器
+- **功能**：采集内存使用情况
+- **Lua配置示例**：
+```lua
+local mem = luakit.monitor.collectors.mem{
+    interval = 10,
+}
+```
+
+### 3. 磁盘采集器
+- **功能**：采集磁盘使用情况和指定目录的磁盘空间
+- **Lua配置示例**：
 ```lua
 local disk = luakit.monitor.collectors.disk{
-    interval = 10,  -- 采集间隔(秒)
-    targets = {"D:\\", "E:\\"}  -- 指定挂载点
+    interval = 1800,  -- 30分钟采集一次
+    targets = {"C:\\", "D:\\"}  -- 监控的磁盘目录
+}
+```
+
+### 4. 网络采集器
+- **功能**：采集网络流量和连接数
+- **Lua配置示例**：
+```lua
+local net = luakit.monitor.collectors.net{
+    interval = 10,
+}
+```
+
+### 5. 自身进程采集器
+- **功能**：采集自身进程的资源使用情况
+- **Lua配置示例**：
+```lua
+local self_process = luakit.monitor.collectors.self_process{
+    interval = 10,
+}
+```
+
+### 6. 原生GO指标采集器
+- **功能**：采集自身go程序的资源使用情况
+- **Lua配置示例**：
+```lua
+local self_process = luakit.monitor.collectors.go{
+    interval = 10,
+}
+```
+
+### 7. 通用采集器
+- **功能**：自定义采集器和指标集合
+- **Lua配置示例**：
+```lua
+local c = luakit.monitor.collectors.new{
+    name = "自定义采集器",
+    help = "自定义采集器描述",
+    metrics = {
+        metrics.counter('req_cnt', '请求计数器'),
+        metrics.counter('req_fail_cnt', '请求失败计数器')
+    }
 }
 ```
 ## 指标
@@ -102,7 +155,7 @@ m.PrometheusPush{
 }
 ```
 ### 内部数据采集PULL接口
-还在开发中, 目前只有最简易的实现
+还在开发中, 目前只有最简易的实现, 以标准json格式输出所有采集的数据信息或者触发采集动作
 
 ``` lua
  m.SimplePull("0.0.0.0:9101")
@@ -119,10 +172,10 @@ TODO
 ## 告警器
 ### 简单告警器
 **还在开发中, 部分功能还未完成**  
-只支持直接指标的告警, 暂时不支持复杂运算
-方法 `outputLog()` 会输出告警日志, 可以通过配置日志输出到文件或其他方式
-方法 `outputSiem()` 会发送告警到SIEM, 可以通过配置SIEM地址和参数来发送告警
-方法 `addSuppression(int,int)` 可以添加抑制规则, 第一个参数为抑制时间(秒), 第二个参数为抑制次数, 当在抑制时间内达到抑制次数时, 告警器会抑制告警
+>只支持直接指标的告警, 暂时不支持复杂运算
+- 方法 `outputLog()` 会输出告警日志, 可以通过配置日志输出到文件或其他方式
+- 方法 `outputSiem()` 会发送告警到SIEM, 可以通过配置SIEM地址和参数来发送告警
+- 方法 `addSuppression(int,int)` 可以添加抑制规则, 第一个参数为抑制时间(秒), 第二个参数为抑制次数, 当在抑制时间内达到抑制次数时, 告警器会抑制告警
 
 使用样例:
 ```lua

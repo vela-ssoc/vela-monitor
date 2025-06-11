@@ -42,7 +42,7 @@ local m = luakit.monitor {
 }
 
 -- 采集器 (相当于指标集合和统一的采集方法)
-m.collectors(cpu, mem, disk, net, self_process,c)
+m.collectors(cpu, mem, disk, net, self_process,c,go)
 --m.collectors(cpu, mem, disk, net)
 
 -- 单独定义的指标(孤儿指标)

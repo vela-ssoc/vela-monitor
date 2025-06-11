@@ -65,26 +65,26 @@ func (a *PrometheusAdapter) RegisterAll() {
 		if promCollector, ok := (*c).(*collector.PrometheusCollector); ok {
 			err := a.registry.Register(promCollector.Get())
 			if err != nil {
-				logger.Infof("register metric %s failed: %v\n", (*c).Name(), err)
+				logger.Infof("register metric %s failed: %v", (*c).Name(), err)
 				continue
 			}
 			continue
 		}
 		a.RegisterCollector(c)
-		logger.Infof("PrometheusAdapter Register Collector... %s \n", (*c).Name())
+		logger.Infof("PrometheusAdapter Register Collector... %s ", (*c).Name())
 	}
 
 	// 单独指标
 	for _, m := range a.Metrics {
 		a.RegisterMetric(m)
-		logger.Infof("PrometheusAdapter Register Metrics...%s \n", (*m).Name())
+		logger.Infof("PrometheusAdapter Register Metrics...%s ", (*m).Name())
 	}
 }
 
 func (a *PrometheusAdapter) RegisterCollector(c *collector.Collector) {
 	err := a.registry.Register(NewPrometheusCollectorWarp(c))
 	if err != nil {
-		logger.Errorf("register metric %s failed: %v\n", (*c).Name(), err)
+		logger.Errorf("register metric %s failed: %v", (*c).Name(), err)
 		return
 	}
 }
@@ -92,7 +92,7 @@ func (a *PrometheusAdapter) RegisterCollector(c *collector.Collector) {
 func (a *PrometheusAdapter) RegisterMetric(m *metrics.Metric) {
 	err := a.registry.Register(NewPrometheusMetricWarp(m))
 	if err != nil {
-		logger.Errorf("register metric %s failed: %v\n", (*m).Name(), err)
+		logger.Errorf("register metric %s failed: %v", (*m).Name(), err)
 		return
 	}
 }
@@ -123,7 +123,7 @@ func (a *PrometheusAdapter) StartPushServe() error {
 
 		for range ticker.C {
 			if err := pusher.Push(); err != nil {
-				logger.Errorf("Could not push metrics to Prometheus Push Gateway: %v\n", err)
+				logger.Errorf("Could not push metrics to Prometheus Push Gateway: %v", err)
 			}
 		}
 	}()
@@ -157,9 +157,9 @@ func (a *PrometheusAdapter) StartPullServeFastHttp() error {
 			Handler: a.httpRoute.Handler,
 		}
 		go func() {
-			logger.Infof("Starting fasthttp server on:%s %s \n", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
+			logger.Infof("Starting fasthttp server on:%s %s ", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
 			if err := a.httpServ.ListenAndServe(a.Cfg.PormPullAddr); err != nil {
-				logger.Errorf("Error starting fasthttp server: %v\n", err)
+				logger.Errorf("Error starting fasthttp server: %v", err)
 			}
 		}()
 	} else {
@@ -181,7 +181,7 @@ func (a *PrometheusAdapter) StartPullServeHttp() error {
 	go func() {
 		logger.Infof("Starting server on :", a.Cfg.PormPullAddr, a.Cfg.PormPullUri)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Errorf("Error starting server: %v\n", err)
+			logger.Errorf("Error starting server: %v", err)
 		}
 	}()
 	return nil
