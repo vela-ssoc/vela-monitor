@@ -39,21 +39,21 @@ func NewDiskCollector(interval int) *DiskCollector {
 func (d *DiskCollector) AddTarget(target string) error {
 	d.targets = append(d.targets, target)
 	m_usage := metrics.NewSimpleGauge("disk_usage_percent_"+target, "磁盘空间使用率("+target+")", func() float64 {
-		usage, err := disk.Usage("/")
+		usage, err := disk.Usage(target)
 		if err != nil {
 			return 0
 		}
 		return usage.UsedPercent
 	})
 	m_free := metrics.NewSimpleGauge("disk_free_GB_"+target, "磁盘剩余空间大小GB("+target+")", func() float64 {
-		usage, err := disk.Usage("/")
+		usage, err := disk.Usage(target)
 		if err != nil {
 			return 0
 		}
 		return float64(usage.Free) / 1024 / 1024 / 1024
 	})
 	m_total := metrics.NewSimpleGauge("disk_total_GB_"+target, "磁盘总空间大小GB("+target+")", func() float64 {
-		usage, err := disk.Usage("/")
+		usage, err := disk.Usage(target)
 		if err != nil {
 			return 0
 		}
