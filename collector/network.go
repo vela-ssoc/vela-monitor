@@ -27,6 +27,7 @@ const NetInterval = 60
 
 type NetworkCollector struct {
 	mutex       sync.Mutex
+	interval    int
 	metrics     []*metrics.Metric
 	onCollectFn func([]*metrics.Metric)
 }
@@ -34,7 +35,8 @@ type NetworkCollector struct {
 // 在NewNetworkCollector函数中添加新指标
 func NewNetworkCollector(interval int) *NetworkCollector {
 	return &NetworkCollector{
-		mutex: sync.Mutex{},
+		interval: interval,
+		mutex:    sync.Mutex{},
 		metrics: []*metrics.Metric{
 			&netBytesSent,
 			&netBytesRecv,
@@ -91,7 +93,7 @@ func (n *NetworkCollector) OnCollect(fn func([]*metrics.Metric)) {
 }
 
 func (n *NetworkCollector) Interval() int {
-	return NetInterval
+	return n.interval
 }
 
 func (n *NetworkCollector) Metrics() []*metrics.Metric {

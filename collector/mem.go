@@ -22,13 +22,15 @@ const MemInterval = 60
 
 type MemoryCollector struct {
 	mutex       sync.Mutex
+	interval    int
 	metrics     []*metrics.Metric
 	onCollectFn func([]*metrics.Metric)
 }
 
 func NewMemoryCollector(interval int) *MemoryCollector {
 	return &MemoryCollector{
-		mutex: sync.Mutex{},
+		interval: interval,
+		mutex:    sync.Mutex{},
 		metrics: []*metrics.Metric{
 			&memUsage,
 			&memFree,
@@ -76,7 +78,7 @@ func (m *MemoryCollector) OnCollect(fn func([]*metrics.Metric)) {
 }
 
 func (m *MemoryCollector) Interval() int {
-	return MemInterval
+	return m.interval
 }
 
 func (m *MemoryCollector) Metrics() []*metrics.Metric {

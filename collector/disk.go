@@ -20,6 +20,7 @@ var (
 const DiskInterval = 300
 
 type DiskCollector struct {
+	interval    int
 	mutex       sync.Mutex
 	metrics     []*metrics.Metric
 	onCollectFn func([]*metrics.Metric)
@@ -28,7 +29,8 @@ type DiskCollector struct {
 
 func NewDiskCollector(interval int) *DiskCollector {
 	return &DiskCollector{
-		mutex: sync.Mutex{},
+		interval: interval,
+		mutex:    sync.Mutex{},
 		metrics: []*metrics.Metric{
 			&diskUsage,
 			&diskFree,
@@ -116,7 +118,7 @@ func (d *DiskCollector) OnCollect(fn func([]*metrics.Metric)) {
 }
 
 func (d *DiskCollector) Interval() int {
-	return DiskInterval
+	return d.interval
 }
 
 func (d *DiskCollector) Metrics() []*metrics.Metric {

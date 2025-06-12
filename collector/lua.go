@@ -16,47 +16,64 @@ func NewCpuCollectorL(L *lua.LState) int {
 
 func NewDiskCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
-	i := tab.RawGetString("interval").(lua.LNumber)
-	targets := tab.RawGetString("targets").(*lua.LTable)
-	c := NewDiskCollector(int(i))
-	if targets != nil {
-		for i := 1; i <= targets.Len(); i++ {
-			target := targets.RawGetInt(i).String()
-			c.AddTarget(target)
+	interval := DiskInterval
+	if i, ok := tab.RawGetString("interval").(lua.LNumber); ok {
+		interval = int(i)
+	}
+	c := NewDiskCollector(interval)
+	if targets, ok := tab.RawGetString("targets").(*lua.LTable); ok {
+		if targets != nil {
+			for i := 1; i <= targets.Len(); i++ {
+				target := targets.RawGetInt(i).String()
+				c.AddTarget(target)
+			}
 		}
 	}
+
 	L.Push(lua.ReflectTo(c))
 	return 1
 }
 
 func NewMemoryCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
-	i := tab.RawGetString("interval").(lua.LNumber)
-	c := NewMemoryCollector(int(i))
+	interval := MemInterval
+	if i, ok := tab.RawGetString("interval").(lua.LNumber); ok {
+		interval = int(i)
+	}
+	c := NewMemoryCollector(interval)
 	L.Push(lua.ReflectTo(c))
 	return 1
 }
 
 func NewNetworkCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
-	i := tab.RawGetString("interval").(lua.LNumber)
-	c := NewNetworkCollector(int(i))
+	interval := MemInterval
+	if i, ok := tab.RawGetString("interval").(lua.LNumber); ok {
+		interval = int(i)
+	}
+	c := NewNetworkCollector(interval)
 	L.Push(lua.ReflectTo(c))
 	return 1
 }
 
 func NewGoCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
-	i := tab.RawGetString("interval").(lua.LNumber)
-	c := NewGoCollector(int(i))
+	interval := GoInterval
+	if i, ok := tab.RawGetString("interval").(lua.LNumber); ok {
+		interval = int(i)
+	}
+	c := NewGoCollector(interval)
 	L.Push(lua.ReflectTo(c))
 	return 1
 }
 
 func NewSelfProcessCollectorL(L *lua.LState) int {
 	tab := L.CheckTable(1)
-	i := tab.RawGetString("interval").(lua.LNumber)
-	c := NewSelfProcessCollector(int(i))
+	interval := 60
+	if i, ok := tab.RawGetString("interval").(lua.LNumber); ok {
+		interval = int(i)
+	}
+	c := NewSelfProcessCollector(interval)
 	L.Push(lua.ReflectTo(c))
 	return 1
 }
@@ -65,12 +82,15 @@ func NewGeneralL(L *lua.LState) int {
 	tab := L.CheckTable(1)
 	name := tab.RawGetString("name").String()
 	help := tab.RawGetString("help").String()
-	// i := tab.RawGetString("interval").(lua.LNumber)
+	interval := 0
+	if i, ok := tab.RawGetString("interval").(lua.LNumber); ok {
+		interval = int(i)
+	}
 	c := tab.RawGet(lua.LString("metrics")).(*lua.LTable)
 	co := &GeneralCollector{
 		name:     name,
 		help:     help,
-		inverval: 0,
+		inverval: interval,
 		metrics:  make([]*metrics.Metric, 0),
 	}
 	if c != nil {

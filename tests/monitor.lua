@@ -1,7 +1,7 @@
 local colt = luakit.monitor.collectors
 local metrics = luakit.monitor.metrics
 local cpu = colt.cpu {interval = 10,}
-local mem = colt.mem {interval = 10,}
+local mem = colt.mem {}
 local disk = colt.disk {
     interval = 1800,
     targets = {
@@ -9,7 +9,7 @@ local disk = colt.disk {
         "E:\\"
     }
 }
-local net = colt.net { interval = 10,}
+local net = colt.net{}
 local go = colt.go {interval = 10,}
 local self_process = colt.self_process {interval = 10,}
 
