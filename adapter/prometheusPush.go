@@ -43,9 +43,9 @@ func (a *PrometheusAdapter) StartPushServe() error {
 	}
 
 	// 立即执行一次推送
-	if err := pusher.Push(); err != nil {
-		logger.Errorf("首次推送失败: %v", err)
-	}
+	// if err := pusher.Push(); err != nil {
+	// 	logger.Errorf("首次推送失败: %v", err)
+	// }
 
 	// 启动定时推送
 	go func() {
