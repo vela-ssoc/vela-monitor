@@ -138,7 +138,8 @@ m.metrics(req_cnt, qps)
 ### Prometheus集成
 支持Pull和Push两种模式：
 
-1. Pull模式：
+#### 1.Pull模式：
+Pull模式是通过Prometheus的HTTP接口来拉取数据。
 ```lua
 m.PrometheusPull{
     prom_pull_addr = "0.0.0.0:9100",
@@ -146,28 +147,39 @@ m.PrometheusPull{
 }
 ```
 
-2. Push模式：
+#### 2.Push模式：
+Push模式是通过Prometheus的Push Gateway来推送数据到Prometheus。
 ```lua
 m.PrometheusPush{
     prom_push_gateway = "http://127.0.0.1:9091",
     prom_push_interval = 5,
     prom_push_job_name = "job_name"
+    prom_push_username = "", -- 可选参数，用于认证的用户名
+    prom_push_password = "", -- 可选参数，用于认证的密码
+    prom_push_instance = "instance_name", -- 可选参数，实例名称标签
+    prom_push_app      = "app_name",      -- 可选参数，应用名称标签
+    prom_push_version  = "version",       -- 可选参数，应用版本标签
+    prom_push_env      = "env",           -- 可选参数，环境名称标签
+    prom_push_region   = "region",        -- 可选参数，区域名称标签
 }
 ```
-### 内部数据采集PULL接口
+### 内部数据采集PULL接口集成
 还在开发中, 目前只有最简易的实现, 以标准json格式输出所有采集的数据信息或者触发采集动作
 
 ``` lua
  m.SimplePull("0.0.0.0:9101")
 ```
 #### 接口URI
-`/onekit/monitor/collect` 立即执行采集一次, 返回所有采集器的采集数据，格式为JSON。  
-`/onekit/monitor/view` 返回所有数据，格式为JSON。    
-**注意**: 如果采集器/指标没有配置自动定时采集, 那么里面的一些指标不会更新  
+`/onekit/monitor/collect` 
+立即执行采集一次, 返回所有采集器的采集数据，格式为JSON。   
 
+`/onekit/monitor/view` 
+返回所有数据，格式为JSON。    
+**注意**: 如果采集器/指标没有配置自动定时采集, 那么里面的一些指标不会更新   
+
+ 
 ### 内部数据采集PUSH服务
 TODO
-
 
 ## 告警器
 ### 简单告警器

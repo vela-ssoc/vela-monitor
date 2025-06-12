@@ -40,6 +40,11 @@ type Prometheusconfig struct {
 	PormPushJobName  string `lua:"prom_push_job_name"`
 	PormPushUsername string `lua:"prom_push_username"`
 	PormPushPassword string `lua:"prom_push_password"`
+	PormPushIntance  string `lua:"prom_push_instance"`
+	PormPushName     string `lua:"prom_push_app"`
+	PormPushVersion  string `lua:"prom_push_version"`
+	PormPushEnv      string `lua:"prom_push_env"`
+	PormPushRegion   string `lua:"prom_push_region"`
 }
 
 func NewPrometheusAdapter(c map[string]*collector.Collector, m map[string]*metrics.Metric) PrometheusAdapter {
@@ -110,9 +115,19 @@ func (a *PrometheusAdapter) StartPushServe() error {
 		return fmt.Errorf("prometheus push gateway not configured")
 	}
 
-	pusher := push.New(a.Cfg.PormPushGateway, a.Cfg.PormPushJobName).
-		Gatherer(a.registry).Format(expfmt.NewFormat(expfmt.TypeTextPlain))
-
+	pusher := push.New(a.Cfg.PormPushGateway, a.Cfg.PormPushJobName).Gatherer(a.registry).Format(expfmt.NewFormat(expfmt.TypeTextPlain))
+	if a.Cfg.PormPushIntance != "" {
+		pusher.Grouping("instance", a.Cfg.PormPushIntance)
+	}
+	if a.Cfg.PormPushName != "" {
+		pusher.Grouping("app", a.Cfg.PormPushName)
+	}
+	if a.Cfg.PormPushVersion != "" {
+		pusher.Grouping("version", a.Cfg.PormPushVersion)
+	}
+	if a.Cfg.PormPushEnv != "" {
+		pusher.Grouping("env", a.Cfg.PormPushEnv)
+	}
 	if a.Cfg.PormPushUsername != "" && a.Cfg.PormPushPassword != "" {
 		pusher.BasicAuth(a.Cfg.PormPushUsername, a.Cfg.PormPushPassword)
 	}
