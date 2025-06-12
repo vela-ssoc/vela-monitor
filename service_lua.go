@@ -71,8 +71,12 @@ func (ms *MonitorService) StartPormPullL(L *lua.LState) int {
 	// 单例模式 暂时不让用户在一个服务中创建多个Prometheus适配器
 	var existingAdapter adapter.Adapter
 	for _, a := range ms.adapters {
-		if a.Name() == "PrometheusAdapter" {
-			existingAdapter = a
+		if p, ok := a.(*adapter.PrometheusAdapter); ok {
+			err := luakit.TableTo(L, L.CheckTable(1), p.Cfg)
+			if err != nil {
+				L.RaiseError(err.Error())
+			}
+			existingAdapter = p
 		}
 	}
 	if existingAdapter == nil {
@@ -99,8 +103,12 @@ func (ms *MonitorService) StartPormPushL(L *lua.LState) int {
 	// 单例模式 暂时不让用户在一个服务中创建多个Prometheus适配器
 	var existingAdapter adapter.Adapter
 	for _, a := range ms.adapters {
-		if a.Name() == "PrometheusAdapter" {
-			existingAdapter = a
+		if p, ok := a.(*adapter.PrometheusAdapter); ok {
+			err := luakit.TableTo(L, L.CheckTable(1), p.Cfg)
+			if err != nil {
+				L.RaiseError(err.Error())
+			}
+			existingAdapter = p
 		}
 	}
 	if existingAdapter == nil {

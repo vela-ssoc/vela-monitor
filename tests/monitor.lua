@@ -58,6 +58,7 @@ m.PrometheusPush {
     prom_push_job_name = "rock_limit_metrics",
     prom_push_username = "",
     prom_push_password = "",
+    prom_push_instance = "127.0.0.1"
 }
 -- /onekit/monitor/view
 -- /onekit/monitor/collect
