@@ -152,5 +152,5 @@ func getCpuUseTime() float64 {
 	}
 	// return times[0].Total()
 	_, busy := getAllBusy(times[0])
-	return busy
+	return busy / float64(cpuCoreNum)
 }

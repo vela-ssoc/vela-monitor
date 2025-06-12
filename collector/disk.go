@@ -97,7 +97,7 @@ func (d *DiskCollector) Collect() []*metrics.Metric {
 		}
 		for _, m := range d.metrics {
 			switch (*m).Name() {
-			case fmt.Sprintf("disk_usage_%s_precent", target):
+			case fmt.Sprintf("disk_usage_%s_percent", target):
 				(*m).Set(usage.UsedPercent)
 			case fmt.Sprintf("disk_free_%s_gb", target):
 				(*m).Set(float64(usage.Free) / 1024 / 1024 / 1024)
