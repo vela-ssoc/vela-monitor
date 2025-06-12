@@ -68,30 +68,26 @@ func (ms *MonitorService) Startup(env *treekit.Env) error {
 }
 
 func (ms *MonitorService) StartPormPullL(L *lua.LState) int {
-	// 单例模式 暂时不让用户创建多个Prometheus服务
-	// 当前服务已经存在时，启动pull并返回
+	// 单例模式 暂时不让用户在一个服务中创建多个Prometheus适配器
+	var existingAdapter adapter.Adapter
 	for _, a := range ms.adapters {
 		if a.Name() == "PrometheusAdapter" {
-			go func() {
-				err := a.StartPullServe()
-				if err != nil {
-					return
-				}
-			}()
-			return 0
+			existingAdapter = a
 		}
 	}
-
-	p := adapter.NewPrometheusAdapter(ms.collector, ms.metrics)
-	ms.adapters = append(ms.adapters, &p)
-	cfg := L.CheckTable(1)
-	err := luakit.TableTo(L, cfg, p.Cfg)
-	p.RegisterAll()
-	if err != nil {
-		L.RaiseError(err.Error())
+	if existingAdapter == nil {
+		p := adapter.NewPrometheusAdapter(ms.collector, ms.metrics)
+		ms.adapters = append(ms.adapters, &p)
+		err := luakit.TableTo(L, L.CheckTable(1), p.Cfg)
+		if err != nil {
+			L.RaiseError(err.Error())
+		}
+		p.RegisterAll()
+		existingAdapter = &p
 	}
+
 	go func() {
-		err = p.StartPullServe()
+		err := existingAdapter.StartPullServe()
 		if err != nil {
 			L.RaiseError(err.Error())
 		}
@@ -100,28 +96,26 @@ func (ms *MonitorService) StartPormPullL(L *lua.LState) int {
 }
 
 func (ms *MonitorService) StartPormPushL(L *lua.LState) int {
-	// 单例模式 暂时不让用户创建多个Prometheus服务
+	// 单例模式 暂时不让用户在一个服务中创建多个Prometheus适配器
+	var existingAdapter adapter.Adapter
 	for _, a := range ms.adapters {
 		if a.Name() == "PrometheusAdapter" {
-			go func() {
-				err := a.StartPushServe()
-				if err != nil {
-					return
-				}
-			}()
+			existingAdapter = a
 		}
 	}
-	p := adapter.NewPrometheusAdapter(ms.collector, ms.metrics)
-	ms.adapters = append(ms.adapters, &p)
-	cfg := L.CheckTable(1)
-	err := luakit.TableTo(L, cfg, p.Cfg)
-	if err != nil {
-		L.RaiseError(err.Error())
+	if existingAdapter == nil {
+		p := adapter.NewPrometheusAdapter(ms.collector, ms.metrics)
+		ms.adapters = append(ms.adapters, &p)
+		err := luakit.TableTo(L, L.CheckTable(1), p.Cfg)
+		if err != nil {
+			L.RaiseError(err.Error())
+		}
+		p.RegisterAll()
+		existingAdapter = &p
 	}
-	p.RegisterAll()
 
 	go func() {
-		err = p.StartPushServe()
+		err := existingAdapter.StartPushServe()
 		if err != nil {
 			L.RaiseError(err.Error())
 		}
@@ -161,6 +155,10 @@ func (ms *MonitorService) StertSimplePullL(L *lua.LState) int {
 	return 1
 }
 
+func (ms *MonitorService) StartSimplePushL(L *lua.LState) int {
+	return 1
+}
+
 func (ms *MonitorService) Index(L *lua.LState, key string) lua.LValue {
 	switch key {
 	case "start":
@@ -171,6 +169,8 @@ func (ms *MonitorService) Index(L *lua.LState, key string) lua.LValue {
 		return lua.NewFunction(ms.StartPormPushL)
 	case "SimplePull":
 		return lua.NewFunction(ms.StertSimplePullL)
+	case "SimplePush":
+		return lua.NewFunction(ms.StartSimplePushL)
 	case "collectors":
 		return lua.NewFunction(ms.NewCollectorsL)
 	case "metrics":
