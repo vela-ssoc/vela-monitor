@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/vela-ssoc/vela-monitor/metrics"
@@ -11,8 +12,8 @@ import (
 // 磁盘基础指标定义 (全局变量)
 var (
 	diskUsage = metrics.NewSimpleGauge("disk_usage_percent", "磁盘空间使用率(windows为系统盘,linux为根目录)", getDiskUsage)
-	diskFree  = metrics.NewSimpleGauge("disk_free_GB", "磁盘剩余空间大小GB(windows为系统盘,linux为根目录)", getDiskFree)
-	diskTotal = metrics.NewSimpleGauge("disk_total_GB", "磁盘总空间大小GB(windows为系统盘,linux为根目录)", getDiskTotal)
+	diskFree  = metrics.NewSimpleGauge("disk_free_gb", "磁盘剩余空间大小GB(windows为系统盘,linux为根目录)", getDiskFree)
+	diskTotal = metrics.NewSimpleGauge("disk_total_gb", "磁盘总空间大小GB(windows为系统盘,linux为根目录)", getDiskTotal)
 )
 
 // 默认采集间隔(秒)
@@ -38,26 +39,26 @@ func NewDiskCollector(interval int) *DiskCollector {
 
 func (d *DiskCollector) AddTarget(target string) error {
 	d.targets = append(d.targets, target)
-	m_usage := metrics.NewSimpleGauge("disk_usage_percent_"+target, "磁盘空间使用率("+target+")", func() float64 {
+	m_usage := metrics.NewSimpleGauge(fmt.Sprintf("disk_usage_%s_percent", target), "磁盘空间使用率("+target+")", func() float64 {
 		usage, err := disk.Usage(target)
 		if err != nil {
 			return 0
 		}
 		return usage.UsedPercent
 	})
-	m_free := metrics.NewSimpleGauge("disk_free_GB_"+target, "磁盘剩余空间大小GB("+target+")", func() float64 {
+	m_free := metrics.NewSimpleGauge(fmt.Sprintf("disk_free_%s_gb", target), "磁盘剩余空间大小GB("+target+")", func() float64 {
 		usage, err := disk.Usage(target)
 		if err != nil {
 			return 0
 		}
-		return float64(usage.Free) / 1024 / 1024 / 1024
+		return float64(usage.Free / 1024 / 1024 / 1024)
 	})
-	m_total := metrics.NewSimpleGauge("disk_total_GB_"+target, "磁盘总空间大小GB("+target+")", func() float64 {
+	m_total := metrics.NewSimpleGauge(fmt.Sprintf("disk_total_%s_gb", target), "磁盘总空间大小GB("+target+")", func() float64 {
 		usage, err := disk.Usage(target)
 		if err != nil {
 			return 0
 		}
-		return float64(usage.Total) / 1024 / 1024 / 1024
+		return float64(usage.Total / 1024 / 1024 / 1024)
 	})
 	d.metrics = append(d.metrics, &m_usage, &m_free, &m_total)
 	return nil
@@ -71,6 +72,7 @@ func (d *DiskCollector) Help() string {
 	return "Disk usage metrics collector"
 }
 
+// 在Collect方法中需要修改以下匹配逻辑
 func (d *DiskCollector) Collect() []*metrics.Metric {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
@@ -89,15 +91,15 @@ func (d *DiskCollector) Collect() []*metrics.Metric {
 	for _, target := range d.targets {
 		usage, err := disk.Usage(target)
 		if err != nil {
-			return nil
+			continue
 		}
 		for _, m := range d.metrics {
 			switch (*m).Name() {
-			case "disk_usage_percent_" + target:
+			case fmt.Sprintf("disk_usage_%s_precent", target):
 				(*m).Set(usage.UsedPercent)
-			case "disk_free_GB_" + target:
+			case fmt.Sprintf("disk_free_%s_gb", target):
 				(*m).Set(float64(usage.Free) / 1024 / 1024 / 1024)
-			case "disk_total_GB_" + target:
+			case fmt.Sprintf("disk_total_%s_gb", target):
 				(*m).Set(float64(usage.Total) / 1024 / 1024 / 1024)
 			}
 		}
