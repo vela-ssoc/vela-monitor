@@ -11,10 +11,10 @@ import (
 
 // 内存基础指标定义 (全局变量)
 var (
-	memUsage  = metrics.NewSimpleGauge("mem_usage_percent", "Memory Usage Percentage", getMemUsage)
-	memFree   = metrics.NewSimpleGauge("mem_free_GB", "Free Memory (GB)", getMemFree)
-	memTotal  = metrics.NewSimpleGauge("mem_total_GB", "Total Memory (GB)", getMemTotal)
-	memCached = metrics.NewSimpleGauge("mem_cached_GB", "Cached Memory (GB)", getMemCached)
+	memUsage  = metrics.NewSimpleGauge("mem_usage_percent", "内存使用率百分比", getMemUsage)
+	memFree   = metrics.NewSimpleGauge("mem_free_gb", "空闲内存大小(GB)", getMemFree)
+	memTotal  = metrics.NewSimpleGauge("mem_total_gb", "总内存大小(GB)", getMemTotal)
+	memCached = metrics.NewSimpleGauge("mem_cached_gb", "缓存内存大小(GB)", getMemCached)
 )
 
 // 默认采集间隔(秒)

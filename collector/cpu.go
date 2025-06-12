@@ -12,10 +12,10 @@ import (
 // CPU 基础指标  (全局变量)
 // 方便外部其它GO模块获取该指标 不仅仅是在lua中使用的
 var (
-	cpuUsage    = metrics.NewSimpleGauge("cpu_usage", "Cpu Usage", getCpuUsage)
-	cpuUseTime  = metrics.NewSimpleGauge("cpu_time_total", "Cpu inUse Time", getCpuUseTime)
+	cpuUsage    = metrics.NewSimpleGauge("cpu_usage_percent", "CPU使用率百分比", getCpuUsage)
+	cpuUseTime  = metrics.NewSimpleGauge("cpu_time_total", "CPU使用时间总计", getCpuUseTime)
 	cpuUsageAvg = metrics.NewRateCalculator(
-		"cpu_usage_avg_%ds",
+		"cpu_usage_avg_%ds_percent",
 		"CPU %ds内平均使用百分比",
 		cpuUseTime,
 		metrics.WithWindow(time.Duration(Interval)*time.Second))
