@@ -33,7 +33,7 @@ local c = colt.new {
 
 
 local alarm = luakit.monitor.alarm.simple("简单告警器")
-alarm.addSimple(cpu, "cpu_usage > 10", "cpu使用率超过10%").outputLog()
+alarm.addSimple(cpu, "cpu_usage > 10", "cpu使用率超过10%").addSuppression(60,3).outputLog()
 --alarm.addAvg(cpu,"cpu.usage > 80", "cpu使用率超过80%", 5) -- 5次采集平均值
 
 
