@@ -11,9 +11,17 @@ import (
 
 // 磁盘基础指标定义 (全局变量)
 var (
+	// 磁盘空间指标
 	diskUsage = metrics.NewSimpleGauge("disk_usage_percent", "磁盘空间使用率(windows为系统盘,linux为根目录)", getDiskUsage)
 	diskFree  = metrics.NewSimpleGauge("disk_free_gb", "磁盘剩余空间大小GB(windows为系统盘,linux为根目录)", getDiskFree)
 	diskTotal = metrics.NewSimpleGauge("disk_total_gb", "磁盘总空间大小GB(windows为系统盘,linux为根目录)", getDiskTotal)
+	// 磁盘IO指标
+	diskIOReadBytes  = metrics.NewSimpleGauge("disk_io_read_bytes_total", "磁盘读取字节总数", nil)
+	diskIOWriteBytes = metrics.NewSimpleGauge("disk_io_write_bytes_total", "磁盘写入字节总数", nil)
+	diskIOReadOps    = metrics.NewSimpleGauge("disk_io_read_ops_total", "磁盘读取操作总数", nil)
+	diskIOWriteOps   = metrics.NewSimpleGauge("disk_io_write_ops_total", "磁盘写入操作总数", nil)
+	diskIOReadTime   = metrics.NewSimpleGauge("disk_io_read_time_ms_total", "磁盘读取时间总计(毫秒)", nil)
+	diskIOWriteTime  = metrics.NewSimpleGauge("disk_io_write_time_ms_total", "磁盘写入时间总计(毫秒)", nil)
 )
 
 // 默认采集间隔(秒)
@@ -35,6 +43,12 @@ func NewDiskCollector(interval int) *DiskCollector {
 			&diskUsage,
 			&diskFree,
 			&diskTotal,
+			&diskIOReadBytes,
+			&diskIOWriteBytes,
+			&diskIOReadOps,
+			&diskIOWriteOps,
+			&diskIOReadTime,
+			&diskIOWriteTime,
 		},
 	}
 }
@@ -79,33 +93,55 @@ func (d *DiskCollector) Collect() []*metrics.Metric {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
-	usage, err := disk.Usage("/")
-	if err != nil {
-		return nil
+	// 一次性采集所有磁盘路径使用情况
+	pathUsages := make(map[string]*disk.UsageStat)
+
+	// 采集全局路径
+	globalUsage, err := disk.Usage("/")
+	if err == nil {
+		pathUsages["/"] = globalUsage
 	}
 
-	// 内置全局指标采集
-	diskUsage.Set(usage.UsedPercent)
-	diskFree.Set(float64(usage.Free) / 1024 / 1024 / 1024)
-	diskTotal.Set(float64(usage.Total) / 1024 / 1024 / 1024)
-
-	// 自定义目录指标采集
+	// 采集所有目标路径
 	for _, target := range d.targets {
-		usage, err := disk.Usage(target)
-		if err != nil {
-			continue
-		}
-		for _, m := range d.metrics {
-			switch (*m).Name() {
-			case fmt.Sprintf("disk_usage_%s_percent", target):
-				(*m).Set(usage.UsedPercent)
-			case fmt.Sprintf("disk_free_%s_gb", target):
-				(*m).Set(float64(usage.Free) / 1024 / 1024 / 1024)
-			case fmt.Sprintf("disk_total_%s_gb", target):
-				(*m).Set(float64(usage.Total) / 1024 / 1024 / 1024)
+		if _, exists := pathUsages[target]; !exists {
+			usage, err := disk.Usage(target)
+			if err == nil {
+				pathUsages[target] = usage
 			}
 		}
 	}
+
+	// 更新磁盘空间指标
+	if globalUsage, ok := pathUsages["/"]; ok {
+		diskUsage.Set(globalUsage.UsedPercent)
+		diskFree.Set(float64(globalUsage.Free) / 1024 / 1024 / 1024)
+		diskTotal.Set(float64(globalUsage.Total) / 1024 / 1024 / 1024)
+	}
+
+	// 更新自定义目录指标
+	for _, target := range d.targets {
+		if usage, ok := pathUsages[target]; ok {
+			for _, m := range d.metrics {
+				switch (*m).Name() {
+				case fmt.Sprintf("disk_usage_%s_percent", target):
+					(*m).Set(usage.UsedPercent)
+				case fmt.Sprintf("disk_free_%s_gb", target):
+					(*m).Set(float64(usage.Free) / 1024 / 1024 / 1024)
+				case fmt.Sprintf("disk_total_%s_gb", target):
+					(*m).Set(float64(usage.Total) / 1024 / 1024 / 1024)
+				}
+			}
+		}
+	}
+
+	readBytes, writeBytes, readOps, writeOps, readTime, writeTime := getDiskIO()
+	diskIOReadBytes.Set(float64(readBytes))
+	diskIOWriteBytes.Set(float64(writeBytes))
+	diskIOReadOps.Set(float64(readOps))
+	diskIOWriteOps.Set(float64(writeOps))
+	diskIOReadTime.Set(float64(readTime))
+	diskIOWriteTime.Set(float64(writeTime))
 
 	if d.onCollectFn != nil {
 		d.onCollectFn(d.metrics)
